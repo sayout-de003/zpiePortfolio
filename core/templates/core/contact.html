@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles if needed */
+    .contact-form {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--c-card-bg);
+        padding: 2rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+    .contact-form input, .contact-form textarea {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        background: rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--c-white);
+        font-family: var(--font-mono);
+    }
+    .contact-form button {
+        background: var(--c-blue);
+        color: var(--c-black);
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+    }
+    .contact-info {
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section-padding">
+        <h2 class="section-title">CONTACT US</h2>
+        
+        <div class="contact-info">
+            {% for contact in contact_details %}
+                <div class="contact-row">
+                    <i data-lucide="{{ contact.type.lucideicon|default:'circle' }}"></i>
+                    {% if contact.url %}
+                        <a href="{{ contact.url }}" target="_blank">{{ contact.description }}</a>
+                    {% else %}
+                        <span>{{ contact.description }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <form class="contact-form" method="post">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="text" name="company_name" placeholder="Company Name">
+            <input type="tel" name="phone" placeholder="Phone Number">
+            <input type="text" name="subjectMessage" placeholder="Subject" required>
+            <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

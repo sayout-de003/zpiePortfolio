@@ -1,0 +1,526 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* --- HERO --- */
+    .hero { 
+        height: calc(100vh - var(--nav-height)); 
+        display:flex; flex-direction:column; justify-content:center; 
+        position:relative; z-index: 20; background: transparent; 
+        padding-left: 5vw;
+    }
+    .hero-bg-img {
+        position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover;
+        opacity: 0.3; z-index: -1; filter: grayscale(100%) contrast(1.2);
+    }
+    .floating-formula { position:absolute; color:rgba(255,255,255,0.05); font-family:var(--font-mono); font-size:4rem; z-index:-1; user-select:none; }
+    
+    h1 { font-size:8vw; line-height:0.9; font-weight:900; text-transform:uppercase; mix-blend-mode: exclusion; }
+    .outline-text { color:transparent; -webkit-text-stroke:1px var(--c-white); opacity:0.3; }
+    
+    .hero p { 
+        font-family:var(--font-mono); max-width:600px; margin-top:2rem; 
+        color:var(--c-blue); border-left:2px solid var(--c-blue); 
+        padding-left:1rem; font-size: 1.1rem; line-height: 1.5;
+    }
+    
+    .btn-future { 
+        margin-top:3rem; padding:1rem 3rem; background:transparent; 
+        border:1px solid var(--c-blue); color:var(--c-blue); 
+        font-family:var(--font-mono); text-transform:uppercase; 
+        letter-spacing:2px; position:relative; overflow:hidden; 
+        transition:0.3s; display: inline-block; width: max-content;
+    }
+    .btn-future::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, var(--c-blue), transparent); transition:0.5s; }
+    .btn-future:hover { background:var(--c-blue); color:var(--c-black); box-shadow:0 0 30px var(--c-blue); }
+    .btn-future:hover::before { left:100%; }
+
+    /* --- SCROLL VIDEO --- */
+    .scroll-video-section {
+        height: 300vh; 
+        position: relative; width: 100%; background: black;
+    }
+    .sticky-wrapper {
+        position: sticky; top: 0; width: 100%; height: 100vh;
+        overflow: hidden; display: flex; justify-content: center; align-items: center;
+    }
+    #cinematic-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .vid-overlay {
+        position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 2;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        opacity: 0; transition: opacity 0.5s ease; mix-blend-mode: screen;
+    }
+    .vid-caption {
+        font-family: var(--font-mono); color: var(--c-blue); background: rgba(0,0,0,0.6);
+        padding: 5px 10px; border: 1px solid var(--c-blue); margin-top: 20px;
+        transform: translateY(20px); transition: transform 0.5s ease;
+    }
+    .vid-overlay.active { opacity: 1; }
+    .vid-overlay.active .vid-caption { transform: translateY(0); }
+    .scanlines {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%; z-index: 3; pointer-events: none;
+    }
+
+    /* --- BRIEF SECTION --- */
+    .brief-section { 
+        padding: 6rem 2rem; background: #020202; position: relative; overflow: hidden;
+        border-bottom: 1px solid rgba(0,243,255,0.1);
+    }
+    .brief-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; text-align: center; }
+    .brief-bg-video { 
+        position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.2; 
+    }
+
+    /* --- COMMON GRID STYLES --- */
+    .section-title { font-size:3rem; margin-bottom:2rem; border-bottom:1px solid var(--c-blue); display:inline-block; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:2rem; margin-top:3rem; }
+    
+    .card { 
+        background: var(--c-card-bg); border:1px solid rgba(255,255,255,0.1); 
+        padding:2rem; backdrop-filter:blur(10px); transition:0.3s; 
+        position:relative; overflow:hidden; display: flex; flex-direction: column;
+    }
+    .card:hover { border-color: var(--c-blue); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .card h3 { font-family:var(--font-mono); margin-bottom:1rem; color:var(--c-white); font-size: 1.5rem;}
+    .card p { font-size:0.9rem; line-height:1.4; color: #ccc; flex-grow: 1; }
+    
+    .card-icon { color: var(--c-blue); margin-bottom: 1rem; }
+    .card-graph { height:50px; width:100%; border-bottom:1px solid rgba(0,243,255,0.3); position:relative; margin-top:2rem; }
+    .card-graph::after { content:''; position:absolute; bottom:0; left:0; height:100%; width:0%; background:linear-gradient(90deg, transparent, var(--c-blue)); opacity:0.3; transition: width 1s ease; }
+    .card:hover .card-graph::after { width:100%; }
+
+    .client-scroller { display: flex; gap: 3rem; overflow-x: auto; padding: 2rem 0; scrollbar-width: none; }
+    .client-logo { height: 60px; filter: grayscale(100%) brightness(200%); opacity: 0.6; transition: 0.3s; }
+    .client-logo:hover { filter: grayscale(0%); opacity: 1; }
+
+    /* --- TESTIMONIALS --- */
+    .testimonial-card { border-left: 3px solid var(--c-blue); }
+    .testimonial-card cite { display: block; margin-top: 1rem; font-family: var(--font-mono); color: var(--c-blue); font-style: normal;}
+
+    /* --- ACCORDION --- */
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 0; }
+    .faq-question { font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; font-family: var(--font-mono); }
+    .faq-question:hover { color: var(--c-blue); }
+    .faq-answer { display: none; padding-top: 1rem; color: #aaa; font-size: 0.95rem; }
+    .faq-item.active .faq-answer { display: block; }
+
+    /* --- CONTACT FORM --- */
+.contact-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap:1.5rem;
+    max-width:900px;
+    margin:0 auto;
+}
+
+.form-group {
+    display:flex;
+    flex-direction:column;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-family:var(--font-mono);
+    font-size:0.8rem;
+    color:var(--c-blue);
+    margin-bottom:0.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    background:rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+    padding:0.8rem;
+    font-family:inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline:none;
+    border-color:var(--c-blue);
+    box-shadow:0 0 10px rgba(0,243,255,0.2);
+}
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <section class="hero">
+        {% if hero.image %}
+            <img src="{{ hero.image.url }}" class="hero-bg-img" alt="Hero Background">
+        {% endif %}
+        
+        <div class="floating-formula" style="top:20%; right:10%;">E = mc²</div>
+        <div class="floating-formula" style="bottom:10%; left:5%;">∫ f(x) dx</div>
+        
+        <h1 class="outline-text">COMPUTE</h1>
+        <h1>BEYOND</h1>
+        <h1>LIMITS<span style="color:var(--c-blue)">.</span></h1>
+        
+        {% if hero %}
+            <p>{{ hero.description }}</p>
+            {% if hero.button_text %}
+                <a href="{{ hero.button_url }}" target="{{ hero.button_target }}" class="btn-future" 
+                   style="border-radius: {{ hero.button_border_radius }}; border-color: {{ hero.button_border_color|default:'var(--c-blue)' }}; background-color: {{ hero.button_background_color }}; color: {{ hero.button_color }}">
+                    {{ hero.button_text }}
+                </a>
+            {% endif %}
+        {% else %}
+             <p>// INITIALIZING PROTOCOL<br>Merging quantum physics with software architecture.</p>
+            <button class="btn-future">Initialize Sequence</button>
+        {% endif %}
+    </section>
+</div>
+
+<div class="scroll-video-section" id="scroll-target">
+    <div class="sticky-wrapper">
+        <canvas id="cinematic-canvas"></canvas>
+        <div class="scanlines"></div>
+        
+        <div class="vid-overlay" id="overlay-1">
+            <h2 style="font-size:4rem; text-transform:uppercase;">Origin</h2>
+            <div class="vid-caption">PHASE 1: QUANTUM ENTANGLEMENT</div>
+        </div>
+        <div class="vid-overlay" id="overlay-2">
+            <h2 style="font-size:4rem; text-transform:uppercase;">Expansion</h2>
+            <div class="vid-caption">PHASE 2: NEURAL MAPPING</div>
+        </div>
+        <div class="vid-overlay" id="overlay-3">
+            <h2 style="font-size:4rem; text-transform:uppercase;">Singularity</h2>
+            <div class="vid-caption">PHASE 3: INFINITE PRECISION</div>
+        </div>
+    </div>
+</div>
+
+{% if homepage_brief %}
+<section class="brief-section">
+    {% if homepage_brief.bg_video %}
+        <video autoplay muted loop class="brief-bg-video">
+            <source src="{{ homepage_brief.bg_video.url }}" type="video/mp4">
+        </video>
+    {% elif homepage_brief.bg_image %}
+        <img src="{{ homepage_brief.bg_image.url }}" class="brief-bg-video" alt="brief bg">
+    {% endif %}
+
+    <div class="container brief-content">
+        <h2 class="section-title">{{ homepage_brief.title }}</h2>
+        <p style="font-size: 1.2rem; line-height: 1.8;">{{ homepage_brief.short_description }}</p>
+        {% if homepage_brief.url %}
+            <a href="{{ homepage_brief.url }}" class="btn-future" style="margin-top: 2rem;">Learn More</a>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+
+<div class="container">
+    <section class="section-padding">
+        <h2 class="section-title">SERVICES</h2>
+        <div class="grid">
+            {% for service in services %}
+            <div class="card">
+                <div class="card-icon">
+                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
+                </div>
+                <h3>{{ service.title }}</h3>
+                <p>{{ service.short_description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <h2 class="section-title">KEY FEATURES</h2>
+        <div class="grid">
+            {% for feature in key_features %}
+            <div class="card">
+                <h3>0{{ forloop.counter }} // {{ feature.title|upper }}</h3>
+                <p>{{ feature.description }}</p>
+                <div class="card-graph"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <h2 class="section-title" style="font-size: 1.5rem;">TRUSTED ENTITIES</h2>
+        <div class="client-scroller">
+            {% for client in clients %}
+                {% if client.image %}
+                    <img src="{{ client.image.url }}" alt="{{ client.name }}" class="client-logo" title="{{ client.name }}">
+                {% else %}
+                    <div style="font-family: var(--font-mono); color: #555;">{{ client.name }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <h2 class="section-title">RECENT DEPLOYMENTS</h2>
+        <div class="grid">
+            {% for project in projects|slice:":3" %}
+            <div class="card" style="padding: 0;">
+                {% if project.image %}
+                    <div style="height: 200px; overflow: hidden;">
+                        <img src="{{ project.image.url }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ project.title }}">
+                    </div>
+                {% endif %}
+                <div style="padding: 2rem;">
+                    <h3>{{ project.title }}</h3>
+                    <p>{{ project.shortDesc }}</p>
+                    {% if project.url %}
+                        <a href="{{ project.url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem;">INITIATE VIEW ></a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 4rem;">
+            <div>
+                <h2 class="section-title">LOGS</h2>
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    {% for blog in blogs|slice:":3" %}
+                        <div style="border-bottom: 1px solid #222; padding-bottom: 1rem;">
+                            <h3 style="font-family: var(--font-mono); margin-bottom: 0.5rem;">{{ blog.title }}</h3>
+                            <p style="color: #666; font-size: 0.9rem;">{{ blog.shortDesc }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h2 class="section-title">TRANSMISSIONS</h2>
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    {% for t in testimonials|slice:":2" %}
+                        <div class="card testimonial-card">
+                            <p>"{{ t.description }}"</p>
+                            <cite>- {{ t.title }}</cite>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <h2 class="section-title">DATA QUERY</h2>
+        <div style="max-width: 800px;">
+            {% for faq in faqs %}
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                    <span>{{ faq.title }}</span>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    {{ faq.shortDesc }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section style="text-align:center; margin:8rem 0;">
+        <h2 class="section-title">JOIN THE FUTURE</h2>
+        <br>
+        <a href="{% url 'contact' %}" class="btn-future">Establish Connection</a>
+    </section>
+</div>
+
+<!-- ===============================
+     STRATEGIC CONTACT SECTION
+================================ -->
+<section class="brief-section" style="border-top:1px solid rgba(0,243,255,0.15);">
+    <div class="container brief-content">
+        <h2 class="section-title">INITIATE CONTACT</h2>
+        <p style="max-width:700px;margin:1rem auto 3rem;font-size:1.1rem;color:#aaa;">
+            Whether you are building a platform, scaling infrastructure, or exploring 
+            advanced digital systems — start the conversation.
+        </p>
+        {% if request.method == "POST" %}
+        <p style="color:var(--c-blue);font-family:var(--font-mono);">
+            Transmission successful. Our team will respond shortly.
+        </p>
+        {% endif %}
+        
+        <form method="post" class="contact-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Company / Organization</label>
+                <input type="text" name="company_name">
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone">
+            </div>
+
+            <div class="form-group full">
+                <label>Subject</label>
+                <input type="text" name="subjectMessage">
+            </div>
+
+            <div class="form-group full">
+                <label>Project Details</label>
+                <textarea name="message" rows="5" required></textarea>
+            </div>
+
+            <div class="form-group full" style="text-align:center;">
+                <button type="submit" class="btn-future">
+                    Transmit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* =========================================================================
+       SCROLL-DRIVEN "CINEMATIC" ENGINE
+       ========================================================================= */
+    const vidCanvas = document.getElementById('cinematic-canvas');
+    if (vidCanvas) {
+        const vidCtx = vidCanvas.getContext('2d');
+        const scrollSection = document.getElementById('scroll-target');
+
+        let vidW, vidH;
+        let currentScrollProgress = 0;
+        let targetScrollProgress = 0;
+
+        function resizeVidCanvas() {
+            vidW = vidCanvas.width = window.innerWidth;
+            vidH = vidCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeVidCanvas);
+        resizeVidCanvas();
+
+        function updateScrollProgress() {
+            const rect = scrollSection.getBoundingClientRect();
+            const sectionHeight = scrollSection.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            let rawProgress = -rect.top / (sectionHeight - windowHeight);
+            targetScrollProgress = Math.max(0, Math.min(1, rawProgress));
+        }
+        window.addEventListener('scroll', updateScrollProgress);
+
+        function lerp(start, end, t) { return start * (1 - t) + end * t; }
+
+        function renderFrame(p) {
+            vidCtx.fillStyle = '#000000';
+            vidCtx.fillRect(0, 0, vidW, vidH);
+
+            const centerX = vidW / 2;
+            const centerY = vidH / 2;
+            const time = Date.now() * 0.001;
+            const pulse = Math.sin(time) * 0.05 + 1;
+
+            vidCtx.save();
+            vidCtx.translate(centerX, centerY);
+            
+            // Scene 1: Portal
+            let rotation = p * Math.PI * 4;
+            vidCtx.rotate(rotation);
+            vidCtx.strokeStyle = `rgba(0, 243, 255, ${Math.max(0, 0.5 - p)})`; 
+            vidCtx.lineWidth = 1;
+            let expansion = 1 + p * 10; 
+            if (p < 0.6) {
+                for(let i=0; i<20; i++) {
+                    vidCtx.beginPath();
+                    let radius = (i * 20 * expansion) % (Math.max(vidW, vidH));
+                    vidCtx.arc(0, 0, radius, 0, Math.PI * 2);
+                    vidCtx.stroke();
+                }
+            }
+
+            // Scene 2: Neural Sphere
+            let particleCount = 100;
+            let sphereSize = 200 * pulse;
+            let sphereAlpha = 0;
+            if(p > 0.1 && p < 0.9) sphereAlpha = Math.sin((p - 0.1) / 0.8 * Math.PI);
+
+            vidCtx.fillStyle = `rgba(0, 243, 255, ${sphereAlpha})`;
+            for (let i = 0; i < particleCount; i++) {
+                let angle = (i / particleCount) * Math.PI * 2;
+                let chaos = Math.sin(p * Math.PI * 5 + i) * 50; 
+                let r = sphereSize + chaos * (1-p); 
+                let x = Math.cos(angle + time) * r;
+                let y = Math.sin(angle + time) * r;
+                
+                vidCtx.beginPath();
+                vidCtx.arc(x, y, 2 + p*2, 0, Math.PI*2);
+                vidCtx.fill();
+                
+                if (i > 0) {
+                    vidCtx.strokeStyle = `rgba(0, 243, 255, ${sphereAlpha * 0.3})`;
+                    vidCtx.beginPath();
+                    let prevAngle = ((i-1) / particleCount) * Math.PI * 2;
+                    let prevX = Math.cos(prevAngle + time) * r;
+                    let prevY = Math.sin(prevAngle + time) * r;
+                    vidCtx.moveTo(x, y);
+                    vidCtx.lineTo(prevX, prevY);
+                    vidCtx.stroke();
+                }
+            }
+            vidCtx.restore();
+
+            // Scene 3: Waveform
+            if (p > 0.5) {
+                vidCtx.save();
+                let waveAlpha = (p - 0.5) * 2; 
+                vidCtx.strokeStyle = `rgba(0, 243, 255, ${waveAlpha})`;
+                vidCtx.lineWidth = 3;
+                
+                vidCtx.beginPath();
+                for(let x = 0; x < vidW; x+=10) {
+                    let frequency = 0.01 + (p * 0.05); 
+                    let amplitude = 100 * Math.sin(p * Math.PI); 
+                    let y = centerY + Math.sin(x * frequency + time * 5 + (p * 20)) * amplitude;
+                    if(x===0) vidCtx.moveTo(x, y); else vidCtx.lineTo(x, y);
+                }
+                vidCtx.stroke();
+                vidCtx.restore();
+            }
+
+            // Overlays
+            const o1 = document.getElementById('overlay-1');
+            const o2 = document.getElementById('overlay-2');
+            const o3 = document.getElementById('overlay-3');
+            if(o1) o1.classList.toggle('active', p > 0.1 && p < 0.35);
+            if(o2) o2.classList.toggle('active', p > 0.35 && p < 0.65);
+            if(o3) o3.classList.toggle('active', p > 0.65 && p < 0.95);
+        }
+
+        function animationLoop() {
+            currentScrollProgress = lerp(currentScrollProgress, targetScrollProgress, 0.1);
+            renderFrame(currentScrollProgress);
+            requestAnimationFrame(animationLoop);
+        }
+        animationLoop();
+    }
+</script>
+{% endblock %}

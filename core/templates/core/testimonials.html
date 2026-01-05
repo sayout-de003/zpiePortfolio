@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles if needed */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section-padding">
+        <h2 class="section-title">TESTIMONIALS</h2>
+        <div class="grid">
+            {% for testimonial in testimonials %}
+            <div class="card testimonial-card">
+                {% if testimonial.image %}
+                    <img src="{{ testimonial.image.url }}" alt="{{ testimonial.title }}" style="width:100%; height:200px; object-fit:cover; margin-bottom:1rem; border-radius: 8px;">
+                {% endif %}
+                <p>"{{ testimonial.description }}"</p>
+                <cite>- {{ testimonial.title }}</cite>
+            </div>
+            {% empty %}
+            <p>No testimonials available at the moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

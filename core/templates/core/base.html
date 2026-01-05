@@ -1,0 +1,243 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ZPie | Infinite Precision{% endblock %}</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --c-black: #000000;
+            --c-dark: #050505;
+            --c-card-bg: rgba(5,5,5,0.85);
+            --c-blue: #00f3ff;
+            --c-white: #ffffff;
+            --font-mono: 'Courier New', Courier, monospace;
+            --font-main: system-ui, -apple-system, sans-serif;
+            --nav-height: 80px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; cursor:none; }
+        body { background-color: var(--c-black); color: var(--c-white); font-family: var(--font-main); min-height:100vh; overflow-x:hidden; position: relative;}
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        /* --- CURSOR RIG --- */
+        #cursor-rig { position:fixed; top:0; left:0; z-index:10000; pointer-events:none; will-change:transform; }
+        .cursor-zero { position:absolute; top:-25px; left:-25px; width:50px; height:50px; border:1px solid rgba(0,243,255,0.3); border-radius:50%; box-shadow:0 0 15px rgba(0,243,255,0.2); display:flex; justify-content:center; align-items:center; animation: idleSpin 4s linear infinite; transition:0.3s; }
+        .cursor-pi { position:absolute; font-family:'Times New Roman', serif; font-style:italic; font-weight:bold; font-size:18px; color:var(--c-blue); text-shadow:0 0 5px var(--c-blue); transform:translate(-50%, -50%); }
+        @keyframes idleSpin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        .is-hovering .cursor-zero { width:80px; height:80px; border-color: var(--c-white); background: rgba(0,243,255,0.05); animation-duration:1s; }
+        .is-hovering .cursor-pi { color: var(--c-white); font-size:24px; text-shadow:0 0 10px var(--c-white);}
+        .is-clicking .cursor-zero { transform:scale(0.8); border-width:4px; }
+
+        /* --- GLOBAL CANVAS LAYERS --- */
+        #trail-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:9998; pointer-events:none; }
+        #canvas-bg { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity: 0.5; }
+
+        /* --- CONTAINER --- */
+        .container { max-width:1200px; margin:0 auto; padding:0 2rem; position:relative; z-index:10; }
+
+        /* --- NAV --- */
+        nav { 
+            display:flex; justify-content:space-between; align-items:center; 
+            height: var(--nav-height); border-bottom:1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            position: sticky; top: 0; z-index: 100; padding: 0 2rem;
+        }
+        .logo-area { display: flex; align-items: center; gap: 1rem; }
+        .logo-img { height: 40px; width: auto; }
+        .logo-text { font-size:1.8rem; font-weight:900; letter-spacing:-2px; position:relative; }
+        .logo-text span { color: var(--c-blue); }
+
+        .nav-links { display: flex; gap: 2rem; align-items: center; font-family: var(--font-mono); font-size: 0.9rem; }
+        
+        /* Dropdowns */
+        .nav-item { position: relative; height: var(--nav-height); display: flex; align-items: center; }
+        .nav-item > a { transition: color 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+        .nav-item:hover > a { color: var(--c-blue); text-shadow: 0 0 8px var(--c-blue); }
+        
+        .dropdown {
+            position: absolute;
+            top: 100%; left: 0;
+            background: var(--c-dark);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            min-width: 200px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(10px);
+            transition: 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .nav-item:hover .dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown a { padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #aaa; transition: 0.2s; }
+        .dropdown a:hover { background: rgba(0, 243, 255, 0.1); color: var(--c-white); padding-left: 20px; }
+
+        .btn-contact { 
+            padding: 0.5rem 1.5rem; border: 1px solid var(--c-blue); color: var(--c-blue);
+            text-transform: uppercase; transition: 0.3s; font-weight: bold;
+        }
+        .btn-contact:hover { background: var(--c-blue); color: var(--c-black); box-shadow: 0 0 15px var(--c-blue); }
+
+        /* --- FOOTER --- */
+        footer { border-top:1px solid var(--c-blue); background: linear-gradient(to top, #001122, #000000); padding: 4rem 2rem 1rem; margin-top: auto; position: relative; z-index: 10;}
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; max-width: 1200px; margin: 0 auto; margin-bottom: 3rem;}
+        .footer-col h4 { font-family: var(--font-mono); color: var(--c-blue); margin-bottom: 1.5rem; text-transform: uppercase; border-left: 2px solid var(--c-blue); padding-left: 10px;}
+        .footer-col ul li { margin-bottom: 0.8rem; }
+        .footer-col ul li a { color: #888; transition: 0.3s; font-size: 0.9rem; }
+        .footer-col ul li a:hover { color: var(--c-white); margin-left: 5px; }
+        
+        .contact-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: #aaa; font-size: 0.9rem;}
+        .contact-row i { color: var(--c-blue); width: 18px; height: 18px; }
+
+        .footer-bottom { text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem; color: #444; font-family: var(--font-mono); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center;}
+        .footer-glitch { font-size:2rem; font-weight:bold; color:#111; text-shadow:2px 2px var(--c-blue); animation: glitch 1s infinite alternate; margin-bottom: 1rem; }
+        @keyframes glitch { 0%{transform:skew(0deg); opacity:0.8;} 20%{transform:skew(-10deg); opacity:1;} 40%{transform:skew(10deg); opacity:0.8;} 60%{transform:skew(0deg); opacity:1;} 80%{transform:skew(5deg); opacity:0.8;} 100%{transform:skew(0deg); opacity:1;} }
+
+        /* Common Utility for Blocks */
+        .section-padding { padding: 6rem 0; }
+        
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div id="cursor-rig"><div class="cursor-zero"></div><div class="cursor-pi">π</div></div>
+    
+    <canvas id="trail-canvas"></canvas>
+    <canvas id="canvas-bg"></canvas>
+
+    <nav>
+        <a href="/" class="logo-area">
+            {% if logo %}
+                <img src="{{ logo.logo.url }}" alt="ZPie" class="logo-img">
+            {% endif %}
+            <div class="logo-text">ZPie<span>.</span></div>
+        </a>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="#">Company</a>
+                <div class="dropdown">
+                    {% for page in company_pages %}
+                        <a href="{{ page.url|default:'#' }}">{{ page.title }}</a>
+                    {% endfor %}
+                    <a href="{% url 'about' %}">About Us</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'service' %}">Services</a>
+                <div class="dropdown">
+                    {% for s in services %}
+                        <a href="{% url 'service_detail' s.slug %}">{{ s.title }}</a>
+                    {% endfor %}
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'project' %}">Projects</a>
+                <div class="dropdown">
+                    {% for p in projects|slice:":5" %}
+                        <a href="{{ p.url|default:'#' }}">{{ p.title }}</a>
+                    {% endfor %}
+                    <a href="{% url 'project' %}" style="color: var(--c-blue)">View All</a>
+                </div>
+            </li>
+            <li>
+                <a href="{% url 'contact' %}" class="btn-contact">Contact</a>
+            </li>
+        </ul>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Services</h4>
+                <ul>
+                    {% for s in services|slice:":6" %}
+                        <li><a href="#">{{ s.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    {% for page in company_pages %}
+                        <li><a href="{{ page.url|default:'#' }}">{{ page.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>HQ Location</h4>
+                {% if address %}
+                    <p style="color: #aaa; line-height: 1.6; font-size: 0.9rem;">
+                        {{ address.address|linebreaksbr }}
+                    </p>
+                    {% if address.google_map_url %}
+                        <a href="{{ address.google_map_url }}" target="_blank" style="color: var(--c-blue); font-size: 0.8rem; margin-top: 10px; display: inline-block;">View on Map &rarr;</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="footer-col">
+                <h4>Connect</h4>
+                {% for contact in contact_details %}
+                    <div class="contact-row">
+                        <i data-lucide="{{ contact.type.lucideicon|default:'circle' }}"></i>
+                        {% if contact.url %}
+                            <a href="{{ contact.url }}" target="_blank">{{ contact.description }}</a>
+                        {% else %}
+                            <span>{{ contact.description }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-glitch">ZPie</div>
+            <div>© {% now "Y" %} ZPie Technologies. All Physics Reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        /* --- CURSOR TRAIL --- */
+        const cursorRig=document.getElementById('cursor-rig');
+        const trailCanvas=document.getElementById('trail-canvas');
+        const trailCtx=trailCanvas.getContext('2d');
+        let mouse={x:window.innerWidth/2,y:window.innerHeight/2};
+        let cursor={x:window.innerWidth/2,y:window.innerHeight/2};
+        let trailParticles=[];
+        function resizeTrailCanvas(){trailCanvas.width=window.innerWidth; trailCanvas.height=window.innerHeight;}
+        window.addEventListener('resize',resizeTrailCanvas); resizeTrailCanvas();
+        document.addEventListener('mousemove',e=>{mouse.x=e.clientX; mouse.y=e.clientY; if(Math.random()>0.6) createTrailParticle(cursor.x,cursor.y,false);});
+        document.addEventListener('mousedown',()=>{cursorRig.classList.add('is-clicking'); for(let i=0;i<12;i++) createTrailParticle(mouse.x,mouse.y,true);});
+        document.addEventListener('mouseup',()=>{cursorRig.classList.remove('is-clicking');});
+        document.querySelectorAll('a, button, .card').forEach(el=>{el.addEventListener('mouseenter',()=>cursorRig.classList.add('is-hovering')); el.addEventListener('mouseleave',()=>cursorRig.classList.remove('is-hovering'));});
+        function createTrailParticle(x,y,isBurst){const angle=Math.random()*Math.PI*2; const speed=isBurst?Math.random()*5+2:Math.random(); trailParticles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:1,decay:isBurst?0.03:0.02,size:isBurst?3:1});}
+        function updateTrailParticles(){trailCtx.clearRect(0,0,trailCanvas.width,trailCanvas.height); for(let i=0;i<trailParticles.length;i++){let p=trailParticles[i]; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay; trailCtx.beginPath(); trailCtx.fillStyle=`rgba(0,243,255,${p.life})`; trailCtx.arc(p.x,p.y,p.size,0,Math.PI*2); trailCtx.fill(); const dx=p.x-cursor.x; const dy=p.y-cursor.y; const dist=Math.sqrt(dx*dx+dy*dy); if(dist<100){trailCtx.beginPath(); trailCtx.strokeStyle=`rgba(0,243,255,${p.life*0.2})`; trailCtx.lineWidth=0.5; trailCtx.moveTo(p.x,p.y); trailCtx.lineTo(cursor.x,cursor.y); trailCtx.stroke();} if(p.life<=0){trailParticles.splice(i,1); i--;}}}
+        function animateCursorLoop(){cursor.x+=(mouse.x-cursor.x)*0.15; cursor.y+=(mouse.y-cursor.y)*0.15; cursorRig.style.transform=`translate(${cursor.x}px,${cursor.y}px)`; updateTrailParticles(); requestAnimationFrame(animateCursorLoop);}
+        animateCursorLoop();
+
+        /* --- BACKGROUND PARTICLES --- */
+        const bgCanvas=document.getElementById('canvas-bg'); const bgCtx=bgCanvas.getContext('2d');
+        let bgW,bgH,bgParticles=[]; const symbols=['0','1','π','∑','∫','∆','Ω','∞','{','}'];
+        function resizeBg(){bgW=bgCanvas.width=window.innerWidth; bgH=bgCanvas.height=window.innerHeight;}
+        window.addEventListener('resize',resizeBg); resizeBg();
+        class BgParticle{constructor(){this.reset();} reset(){this.x=Math.random()*bgW; this.y=Math.random()*bgH; this.vx=(Math.random()-0.5)*1; this.vy=(Math.random()-0.5)*1; this.size=Math.random()*15+8; this.char=symbols[Math.floor(Math.random()*symbols.length)]; this.opacity=Math.random()*0.5+0.1;} update(){this.x+=this.vx; this.y+=this.vy; const dx=mouse.x-this.x; const dy=mouse.y-this.y; const distance=Math.sqrt(dx*dx+dy*dy); if(distance<150){const force=(150-distance)/150; this.vx-=(dx/distance)*force*0.5; this.vy-=(dy/distance)*force*0.5;} if(this.x<0||this.x>bgW)this.vx*=-1; if(this.y<0||this.y>bgH)this.vy*=-1;} draw(){bgCtx.fillStyle=`rgba(0,243,255,${this.opacity})`; bgCtx.font=`${this.size}px monospace`; bgCtx.fillText(this.char,this.x,this.y);}}
+        for(let i=0;i<80;i++) bgParticles.push(new BgParticle());
+        function animateBgLoop(){bgCtx.fillStyle='rgba(0,0,0,0.1)'; bgCtx.fillRect(0,0,bgW,bgH); bgParticles.forEach((p,index)=>{p.update();p.draw(); for(let j=index+1;j<bgParticles.length;j++){const p2=bgParticles[j]; const dx=p.x-p2.x; const dy=p.y-p2.y; const dist=Math.sqrt(dx*dx+dy*dy); if(dist<100){bgCtx.beginPath(); bgCtx.strokeStyle=`rgba(0,243,255,${0.2-dist/500})`; bgCtx.lineWidth=0.5; bgCtx.moveTo(p.x,p.y); bgCtx.lineTo(p2.x,p2.y); bgCtx.stroke();}}}); bgCtx.beginPath(); bgCtx.moveTo(0,bgH/2); for(let i=0;i<bgW;i++){bgCtx.lineTo(i,bgH/2+Math.sin(i*0.01+Date.now()*0.002)*50);} bgCtx.strokeStyle='rgba(255,255,255,0.05)'; bgCtx.stroke(); requestAnimationFrame(animateBgLoop);}
+        animateBgLoop();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

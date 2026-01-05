@@ -1,0 +1,113 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ service.title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    {% if service.banner_video %}
+        <video autoplay muted loop class="hero-video">
+            <source src="{{ service.banner_video.url }}" type="video/mp4">
+        </video>
+    {% elif service.banner_image %}
+        <div class="hero-image" style="background-image: url('{{ service.banner_image.url }}');"></div>
+    {% endif %}
+    <div class="hero-content">
+        <h1>{{ service.title }}</h1>
+        {% if service.short_description %}
+            <p>{{ service.short_description }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="container">
+        <div class="service-detail">
+            {% if service.logo_icon %}
+                <div class="service-icon">
+                    <i data-lucide="{{ service.logo_icon }}" width="60" height="60"></i>
+                </div>
+            {% endif %}
+            <div class="service-description">
+                <p>{{ service.description }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    position: relative;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero-video, .hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+.hero-content {
+    z-index: 1;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+}
+
+.content-section {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.service-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.service-icon {
+    margin-bottom: 2rem;
+}
+
+.service-description {
+    max-width: 800px;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}

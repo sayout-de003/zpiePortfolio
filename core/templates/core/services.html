@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles if needed */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section-padding">
+        <h2 class="section-title">SERVICES</h2>
+        <div class="grid">
+            {% for service in services %}
+            <div class="card">
+                <div class="card-icon">
+                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
+                </div>
+                <h3>{{ service.title }}</h3>
+                <p>{{ service.short_description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

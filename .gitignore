@@ -1,0 +1,83 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Django
+# =========================
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Django migrations (optional – usually KEEP migrations)
+# Uncomment only if you intentionally don't want migrations tracked
+# **/migrations/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+env/
+ENV/
+.venv/
+.weblib/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Testing / Coverage
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# =========================
+# Build / Packaging
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Celery / Redis
+# =========================
+celerybeat-schedule
+celerybeat.pid
+
+# =========================
+# Cache
+# =========================
+.cache/
