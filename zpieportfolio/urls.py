@@ -32,14 +32,14 @@ if settings.DEBUG:
         document_root=settings.MEDIA_ROOT
     )
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-]
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('', include('core.urls')),
+# ]
 
-# REQUIRED FOR MEDIA FILES (DEV ONLY)
-if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+# # REQUIRED FOR MEDIA FILES (DEV ONLY)
+# if settings.DEBUG:
+#     urlpatterns += static(
+#         settings.MEDIA_URL,
+#         document_root=settings.MEDIA_ROOT
+#     )
