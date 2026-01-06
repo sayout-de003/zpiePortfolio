@@ -31,6 +31,7 @@
         font-family:var(--font-mono); text-transform:uppercase; 
         letter-spacing:2px; position:relative; overflow:hidden; 
         transition:0.3s; display: inline-block; width: max-content;
+        text-decoration: none; text-align: center;
     }
     .btn-future::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, var(--c-blue), transparent); transition:0.5s; }
     .btn-future:hover { background:var(--c-blue); color:var(--c-black); box-shadow:0 0 30px var(--c-blue); }
@@ -38,7 +39,7 @@
 
     /* --- SCROLL VIDEO --- */
     .scroll-video-section {
-        height: 300vh; 
+        height: 400vh; 
         position: relative; width: 100%; background: black;
     }
     .sticky-wrapper {
@@ -46,18 +47,16 @@
         overflow: hidden; display: flex; justify-content: center; align-items: center;
     }
     #cinematic-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    
     .vid-overlay {
-        position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 2;
+        position: absolute; width: 100%; height: 100%; z-index: 2;
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        opacity: 0; transition: opacity 0.5s ease; mix-blend-mode: screen;
+        opacity: 0; transition: opacity 0.5s ease;
+        pointer-events: none; /* Default to none */
     }
-    .vid-caption {
-        font-family: var(--font-mono); color: var(--c-blue); background: rgba(0,0,0,0.6);
-        padding: 5px 10px; border: 1px solid var(--c-blue); margin-top: 20px;
-        transform: translateY(20px); transition: transform 0.5s ease;
-    }
-    .vid-overlay.active { opacity: 1; }
-    .vid-overlay.active .vid-caption { transform: translateY(0); }
+    /* Enable pointers only when active so buttons work */
+    .vid-overlay.active { opacity: 1; pointer-events: auto; }
+
     .scanlines {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
@@ -66,8 +65,9 @@
 
     /* --- BRIEF SECTION --- */
     .brief-section { 
-        padding: 6rem 2rem; background: #020202; position: relative; overflow: hidden;
-        border-bottom: 1px solid rgba(0,243,255,0.1);
+        padding: 6rem 2rem; background: rgba(2, 2, 2, 0.7); position: relative; overflow: hidden;
+        border: 1px solid rgba(0,243,255,0.1); backdrop-filter: blur(10px);
+        width: 100%;
     }
     .brief-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; text-align: center; }
     .brief-bg-video { 
@@ -75,11 +75,11 @@
     }
 
     /* --- COMMON GRID STYLES --- */
-    .section-title { font-size:3rem; margin-bottom:2rem; border-bottom:1px solid var(--c-blue); display:inline-block; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:2rem; margin-top:3rem; }
+    .section-title { font-size:3rem; margin-bottom:2rem; border-bottom:1px solid var(--c-blue); display:inline-block; color: white; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:2rem; margin-top:3rem; width: 100%; }
     
     .card { 
-        background: var(--c-card-bg); border:1px solid rgba(255,255,255,0.1); 
+        background: rgba(20, 20, 20, 0.8); border:1px solid rgba(255,255,255,0.1); 
         padding:2rem; backdrop-filter:blur(10px); transition:0.3s; 
         position:relative; overflow:hidden; display: flex; flex-direction: column;
     }
@@ -102,52 +102,44 @@
 
     /* --- ACCORDION --- */
     .faq-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 0; }
-    .faq-question { font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; font-family: var(--font-mono); }
+    .faq-question { font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; font-family: var(--font-mono); color: white; }
     .faq-question:hover { color: var(--c-blue); }
     .faq-answer { display: none; padding-top: 1rem; color: #aaa; font-size: 0.95rem; }
     .faq-item.active .faq-answer { display: block; }
 
     /* --- CONTACT FORM --- */
-.contact-grid {
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-    gap:1.5rem;
-    max-width:900px;
-    margin:0 auto;
+    .contact-grid {
+        display:grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+        gap:1.5rem;
+        max-width:900px;
+        margin:0 auto;
+    }
+    .form-group { display:flex; flex-direction:column; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-family:var(--font-mono); font-size:0.8rem; color:var(--c-blue); margin-bottom:0.5rem; }
+    .form-group input, .form-group textarea {
+        background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); color:#fff;
+        padding:0.8rem; font-family:inherit;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+        outline:none; border-color:var(--c-blue); box-shadow:0 0 10px rgba(0,243,255,0.2);
+    }
+    /* Fix container inside vid-overlay */
+.vid-overlay .container {
+    width: 90%;       /* Full width inside overlay */
+    max-width: 1200px;
+    margin: 0 auto;   /* Center horizontally */
+    display: block;   /* Ensure inner grid works */
 }
 
-.form-group {
-    display:flex;
-    flex-direction:column;
+/* Ensure grid stretches correctly */
+.vid-overlay .grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
 }
-
-.form-group.full {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    font-family:var(--font-mono);
-    font-size:0.8rem;
-    color:var(--c-blue);
-    margin-bottom:0.5rem;
-}
-
-.form-group input,
-.form-group textarea {
-    background:rgba(0,0,0,0.6);
-    border:1px solid rgba(255,255,255,0.1);
-    color:#fff;
-    padding:0.8rem;
-    font-family:inherit;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline:none;
-    border-color:var(--c-blue);
-    box-shadow:0 0 10px rgba(0,243,255,0.2);
-}
-
 
 </style>
 {% endblock %}
@@ -163,7 +155,7 @@
         <div class="floating-formula" style="top:20%; right:10%;">E = mc²</div>
         <div class="floating-formula" style="bottom:10%; left:5%;">∫ f(x) dx</div>
         
-        <h1 class="outline-text">COMPUTE</h1>
+        <h1 class="outline-text">Software</h1>
         <h1>BEYOND</h1>
         <h1>LIMITS<span style="color:var(--c-blue)">.</span></h1>
         
@@ -182,76 +174,138 @@
     </section>
 </div>
 
-<div class="scroll-video-section" id="scroll-target">
+<!-- <div class="scroll-video-section" id="scroll-target">
     <div class="sticky-wrapper">
         <canvas id="cinematic-canvas"></canvas>
         <div class="scanlines"></div>
         
         <div class="vid-overlay" id="overlay-1">
-            <h2 style="font-size:4rem; text-transform:uppercase;">Origin</h2>
-            <div class="vid-caption">PHASE 1: QUANTUM ENTANGLEMENT</div>
+            <div class="container" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                
+                {% for brief in homepage_briefs %}
+                <div id="brief-item-{{ forloop.counter }}" style="margin-bottom: 2rem;">
+                    <section class="brief-section">
+                        <h2 class="section-title">{{ brief.title }}</h2>
+                        <p>{{ brief.short_description }}</p>
+                    </section>
+                </div>
+                {% endfor %}
+        
+            </div>
         </div>
+
         <div class="vid-overlay" id="overlay-2">
-            <h2 style="font-size:4rem; text-transform:uppercase;">Expansion</h2>
-            <div class="vid-caption">PHASE 2: NEURAL MAPPING</div>
+            <div class="container">
+                <section class="section-padding">
+                    <h2 class="section-title">SERVICES</h2>
+                    <div class="grid">
+                        {% for service in services %}
+                        <div class="card">
+                            <div class="card-icon">
+                                <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
+                            </div>
+                            <h3>{{ service.title }}</h3>
+                            <p>{{ service.short_description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
         </div>
+
         <div class="vid-overlay" id="overlay-3">
-            <h2 style="font-size:4rem; text-transform:uppercase;">Singularity</h2>
-            <div class="vid-caption">PHASE 3: INFINITE PRECISION</div>
+            <div class="container">
+                <section class="section-padding">
+                    <h2 class="section-title">KEY FEATURES</h2>
+                    <div class="grid">
+                        {% for feature in key_features %}
+                        <div class="card">
+                            <h3>0{{ forloop.counter }} // {{ feature.title|upper }}</h3>
+                            <p>{{ feature.description }}</p>
+                            <div class="card-graph"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+
+<div class="scroll-video-section" id="scroll-target">
+    <div class="sticky-wrapper">
+        <canvas id="cinematic-canvas"></canvas>
+        <div class="scanlines"></div>
+
+        <!-- BRIEFS -->
+        <div class="vid-overlay" id="overlay-1">
+            <div class="container section-padding">
+                <h2 class="section-title">BRIEFS</h2>
+                <div class="grid">
+                    {% for brief in homepage_briefs %}
+                    <div class="card">
+                        <h3>{{ brief.title }}</h3>
+                        <p>{{ brief.short_description }}</p>
+                        {% if brief.link_url %}
+                        <a href="{{ brief.link_url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem; text-decoration: none;">
+                            Learn More >
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICES -->
+        <!-- SERVICES -->
+            <div class="vid-overlay" id="overlay-2">
+                <div class="container section-padding">
+                    <h2 class="section-title">SERVICES</h2>
+
+                    <div class="grid">
+                        {% for service in services %}
+                        <a href="{% url 'service_detail' service.slug %}" class="service-link">
+                            <div class="card">
+                                <div class="card-icon">
+                                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}"
+                                    width="40" height="40"></i>
+                                </div>
+                                <h3>{{ service.title }}</h3>
+                                <p>{{ service.short_description }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+
+
+        <!-- KEY FEATURES -->
+        <div class="vid-overlay" id="overlay-3">
+            <div class="container section-padding">
+                <h2 class="section-title">KEY FEATURES</h2>
+                <div class="grid">
+                    {% for feature in key_features %}
+                    <div class="card">
+                        <div class="card-icon">
+                            <i data-lucide="{{ feature.logo_icon|default:'star' }}" width="40" height="40"></i>
+                        </div>
+                        <h3>{{ feature.title }}</h3>
+                        <p>{{ feature.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-{% if homepage_brief %}
-<section class="brief-section">
-    {% if homepage_brief.bg_video %}
-        <video autoplay muted loop class="brief-bg-video">
-            <source src="{{ homepage_brief.bg_video.url }}" type="video/mp4">
-        </video>
-    {% elif homepage_brief.bg_image %}
-        <img src="{{ homepage_brief.bg_image.url }}" class="brief-bg-video" alt="brief bg">
-    {% endif %}
-
-    <div class="container brief-content">
-        <h2 class="section-title">{{ homepage_brief.title }}</h2>
-        <p style="font-size: 1.2rem; line-height: 1.8;">{{ homepage_brief.short_description }}</p>
-        {% if homepage_brief.url %}
-            <a href="{{ homepage_brief.url }}" class="btn-future" style="margin-top: 2rem;">Learn More</a>
-        {% endif %}
-    </div>
-</section>
-{% endif %}
-
 
 <div class="container">
-    <section class="section-padding">
-        <h2 class="section-title">SERVICES</h2>
-        <div class="grid">
-            {% for service in services %}
-            <div class="card">
-                <div class="card-icon">
-                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
-                </div>
-                <h3>{{ service.title }}</h3>
-                <p>{{ service.short_description }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="section-padding">
-        <h2 class="section-title">KEY FEATURES</h2>
-        <div class="grid">
-            {% for feature in key_features %}
-            <div class="card">
-                <h3>0{{ forloop.counter }} // {{ feature.title|upper }}</h3>
-                <p>{{ feature.description }}</p>
-                <div class="card-graph"></div>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
     <section class="section-padding">
         <h2 class="section-title" style="font-size: 1.5rem;">TRUSTED ENTITIES</h2>
         <div class="client-scroller">
@@ -279,7 +333,7 @@
                     <h3>{{ project.title }}</h3>
                     <p>{{ project.shortDesc }}</p>
                     {% if project.url %}
-                        <a href="{{ project.url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem;">INITIATE VIEW ></a>
+                        <a href="{{ project.url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem; text-decoration: none;">INITIATE VIEW ></a>
                     {% endif %}
                 </div>
             </div>
@@ -290,18 +344,18 @@
     <section class="section-padding">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 4rem;">
             <div>
-                <h2 class="section-title">LOGS</h2>
+                <h2 class="section-title">Blogs</h2>
                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                     {% for blog in blogs|slice:":3" %}
                         <div style="border-bottom: 1px solid #222; padding-bottom: 1rem;">
-                            <h3 style="font-family: var(--font-mono); margin-bottom: 0.5rem;">{{ blog.title }}</h3>
+                            <h3 style="font-family: var(--font-mono); margin-bottom: 0.5rem; color: white;">{{ blog.title }}</h3>
                             <p style="color: #666; font-size: 0.9rem;">{{ blog.shortDesc }}</p>
                         </div>
                     {% endfor %}
                 </div>
             </div>
             <div>
-                <h2 class="section-title">TRANSMISSIONS</h2>
+                <h2 class="section-title">Testimonial</h2>
                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                     {% for t in testimonials|slice:":2" %}
                         <div class="card testimonial-card">
@@ -315,7 +369,7 @@
     </section>
 
     <section class="section-padding">
-        <h2 class="section-title">DATA QUERY</h2>
+        <h2 class="section-title">FAQs</h2>
         <div style="max-width: 800px;">
             {% for faq in faqs %}
             <div class="faq-item">
@@ -332,16 +386,13 @@
     </section>
 
     <section style="text-align:center; margin:8rem 0;">
-        <h2 class="section-title">JOIN THE FUTURE</h2>
+        <h2 class="section-title">Click To contact</h2>
         <br>
         <a href="{% url 'contact' %}" class="btn-future">Establish Connection</a>
     </section>
 </div>
 
-<!-- ===============================
-     STRATEGIC CONTACT SECTION
-================================ -->
-<section class="brief-section" style="border-top:1px solid rgba(0,243,255,0.15);">
+<!-- <section class="brief-section" style="border-top:1px solid rgba(0,243,255,0.15);">
     <div class="container brief-content">
         <h2 class="section-title">INITIATE CONTACT</h2>
         <p style="max-width:700px;margin:1rem auto 3rem;font-size:1.1rem;color:#aaa;">
@@ -360,48 +411,40 @@
                 <label>Full Name</label>
                 <input type="text" name="name" required>
             </div>
-
             <div class="form-group">
                 <label>Company / Organization</label>
                 <input type="text" name="company_name">
             </div>
-
             <div class="form-group">
                 <label>Email Address</label>
                 <input type="email" name="email" required>
             </div>
-
             <div class="form-group">
                 <label>Phone</label>
                 <input type="text" name="phone">
             </div>
-
             <div class="form-group full">
                 <label>Subject</label>
                 <input type="text" name="subjectMessage">
             </div>
-
             <div class="form-group full">
                 <label>Project Details</label>
                 <textarea name="message" rows="5" required></textarea>
             </div>
-
             <div class="form-group full" style="text-align:center;">
-                <button type="submit" class="btn-future">
-                    Transmit Request
-                </button>
+                <button type="submit" class="btn-future">Transmit Request</button>
             </div>
         </form>
     </div>
-</section>
+</section> -->
 
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    /* =========================================================================
-       SCROLL-DRIVEN "CINEMATIC" ENGINE
-       ========================================================================= */
+    lucide.createIcons();
+
     const vidCanvas = document.getElementById('cinematic-canvas');
     if (vidCanvas) {
         const vidCtx = vidCanvas.getContext('2d');
@@ -423,6 +466,7 @@
             const sectionHeight = scrollSection.offsetHeight;
             const windowHeight = window.innerHeight;
             
+            // rawProgress goes from 0 to 1 as we scroll through 400vh
             let rawProgress = -rect.top / (sectionHeight - windowHeight);
             targetScrollProgress = Math.max(0, Math.min(1, rawProgress));
         }
@@ -506,12 +550,13 @@
                 vidCtx.restore();
             }
 
-            // Overlays
+            // Overlay Visibility Logic (Adjusted for 400vh)
             const o1 = document.getElementById('overlay-1');
             const o2 = document.getElementById('overlay-2');
             const o3 = document.getElementById('overlay-3');
-            if(o1) o1.classList.toggle('active', p > 0.1 && p < 0.35);
-            if(o2) o2.classList.toggle('active', p > 0.35 && p < 0.65);
+            
+            if(o1) o1.classList.toggle('active', p > 0.05 && p < 0.30);
+            if(o2) o2.classList.toggle('active', p > 0.35 && p < 0.60);
             if(o3) o3.classList.toggle('active', p > 0.65 && p < 0.95);
         }
 
@@ -522,5 +567,18 @@
         }
         animationLoop();
     }
+
+    // const totalBriefs = {{ homepage_briefs|length }};
+
+    //     homepage_briefs.forEach((_, index) => {
+    //         const start = index / totalBriefs;
+    //         const end = (index + 1) / totalBriefs;
+
+    //         overlay.classList.toggle(
+    //             'active',
+    //             scrollProgress > start && scrollProgress < end
+    //         );
+    //     });
+
 </script>
 {% endblock %}

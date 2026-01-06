@@ -184,7 +184,39 @@ def basepage(request):
 
 from .models import ContactFormHomePage
 
+# def homepage(request):
+#     if request.method == "POST":
+#         ContactFormHomePage.objects.create(
+#             identifier="homepage_contact",
+#             name=request.POST.get("name"),
+#             company_name=request.POST.get("company_name"),
+#             email=request.POST.get("email"),
+#             phone=request.POST.get("phone"),
+#             subjectMessage=request.POST.get("subjectMessage"),
+#             message=request.POST.get("message"),
+#         )
+
+#     base_context = get_base_context()
+
+#     home_context = {
+#         'hero': HomepageHero.objects.filter(is_active=True).first(),
+#         'homepage_brief': HomepageBrief.objects.filter(is_active=True).first(),
+#         'key_features': KeyFeature.objects.all(),
+#         'clients': Client.objects.all(),
+#         'projects': Project.objects.filter(is_active=True),
+#         'blogs': Blog.objects.all(),
+#         'testimonials': Testimonial.objects.all(),
+#         'faqs': FAQ.objects.filter(is_active=True),
+#     }
+
+#     context = {**base_context, **home_context}
+#     return render(request, 'core/homepage.html', context)
+
+
+
+
 def homepage(request):
+    # Handle homepage contact form
     if request.method == "POST":
         ContactFormHomePage.objects.create(
             identifier="homepage_contact",
@@ -199,18 +231,29 @@ def homepage(request):
     base_context = get_base_context()
 
     home_context = {
+        # HERO
         'hero': HomepageHero.objects.filter(is_active=True).first(),
-        'homepage_brief': HomepageBrief.objects.filter(is_active=True).first(),
+
+        # ✅ FIXED: MULTIPLE HOMEPAGE BRIEFS
+        'homepage_briefs': HomepageBrief.objects.filter(
+            is_active=True
+        ).order_by('id'),
+
+        # OPTIONAL TEXT BLOCKS
+        'text_for_brief': text_for_brief.objects.all(),
+
+        # SECTIONS
         'key_features': KeyFeature.objects.all(),
         'clients': Client.objects.all(),
-        'projects': Project.objects.filter(is_active=True),
-        'blogs': Blog.objects.all(),
+        'projects': Project.objects.filter(is_active=True).order_by('-id'),
+        'blogs': Blog.objects.all().order_by('-id'),
         'testimonials': Testimonial.objects.all(),
         'faqs': FAQ.objects.filter(is_active=True),
     }
 
     context = {**base_context, **home_context}
     return render(request, 'core/homepage.html', context)
+
 
 
 def servicepage(request):
@@ -242,9 +285,33 @@ def faqpage(request):
     context = {**get_base_context(), 'faqs': FAQ.objects.filter(is_active=True)}
     return render(request, 'core/faq.html', context)
 
+# def contactpage(request):
+#     context = get_base_context() # Base context already has contact_details
+#     return render(request, 'core/contact.html', context)    
+
+# core/views.py
+from django.shortcuts import render, redirect
+from .models import ContactDetails, ContactFormHomePage # Assuming you store contact form submissions here
+
 def contactpage(request):
-    context = get_base_context() # Base context already has contact_details
-    return render(request, 'core/contact.html', context)    
+    context = get_base_context() # Your existing helper
+    
+    if request.method == "POST":
+        # Save the data
+        ContactFormHomePage.objects.create(
+            identifier="contact_page",
+            name=request.POST.get("name"),
+            company_name=request.POST.get("company_name"),
+            email=request.POST.get("email"),
+            phone=request.POST.get("phone"),
+            subjectMessage=request.POST.get("subjectMessage"),
+            message=request.POST.get("message"),
+        )
+        
+        # Add a success flag to the context
+        context['success'] = True
+        
+    return render(request, 'core/contact.html', context)
 
 def aboutpage(request):
     context = get_base_context()

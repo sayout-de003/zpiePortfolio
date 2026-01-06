@@ -3,73 +3,207 @@
 
 {% block extra_css %}
 <style>
-    /* Additional styles if needed */
-    .contact-form {
-        max-width: 600px;
-        margin: 0 auto;
-        background: var(--c-card-bg);
-        padding: 2rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
+    /* --- LAYOUT & CENTERING --- */
+    .contact-wrapper {
+        min-height: calc(100vh - var(--nav-height));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem 1rem;
+        position: relative;
     }
-    .contact-form input, .contact-form textarea {
+
+    /* --- FORM CONTAINER --- */
+    .contact-card {
         width: 100%;
-        padding: 0.5rem;
-        margin-bottom: 1rem;
-        background: rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: var(--c-white);
-        font-family: var(--font-mono);
+        max-width: 700px;
+        background: rgba(10, 10, 10, 0.85);
+        border: 1px solid rgba(0, 243, 255, 0.15);
+        backdrop-filter: blur(15px);
+        padding: 3rem;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
     }
-    .contact-form button {
-        background: var(--c-blue);
-        color: var(--c-black);
-        border: none;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
+
+    /* Animated border top */
+    .contact-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+        background: linear-gradient(90deg, transparent, var(--c-blue), transparent);
+    }
+
+    .form-header { text-align: center; margin-bottom: 2.5rem; }
+    .form-header h2 { font-size: 2.5rem; margin-bottom: 0.5rem; color: white; letter-spacing: 2px; }
+    .form-header p { color: #888; font-family: var(--font-mono); font-size: 0.9rem; }
+
+    /* --- INFO ROW --- */
+    .info-grid {
+        display: flex; justify-content: center; gap: 2rem;
+        margin-bottom: 2.5rem; flex-wrap: wrap;
+    }
+    .info-item {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--c-blue); font-family: var(--font-mono); font-size: 0.9rem;
+    }
+    .info-item a { color: var(--c-blue); text-decoration: none; transition: 0.3s; }
+    .info-item a:hover { color: white; text-shadow: 0 0 10px var(--c-blue); }
+
+    /* --- INPUTS --- */
+    .input-group { margin-bottom: 1.2rem; }
+    
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+
+    input, textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        color: white;
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+        transition: 0.3s;
+        outline: none;
+    }
+    input:focus, textarea:focus {
+        border-color: var(--c-blue);
+        background: rgba(0, 243, 255, 0.05);
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+    }
+
+    /* --- BUTTON --- */
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: transparent;
+        border: 1px solid var(--c-blue);
+        color: var(--c-blue);
         font-family: var(--font-mono);
         text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+        margin-top: 1rem;
     }
-    .contact-info {
-        margin-bottom: 2rem;
+    .btn-submit:hover {
+        background: var(--c-blue);
+        color: black;
+        box-shadow: 0 0 20px var(--c-blue);
+    }
+
+    /* --- SUCCESS OVERLAY --- */
+    .success-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.5s ease;
+    }
+    .success-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .success-content { text-align: center; }
+    .success-icon { 
+        width: 80px; height: 80px; border: 2px solid var(--c-blue); 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 2rem; color: var(--c-blue);
+        box-shadow: 0 0 30px var(--c-blue);
+    }
+    .success-text { font-size: 2rem; color: white; margin-bottom: 1rem; }
+    .redirect-text { font-family: var(--font-mono); color: #888; font-size: 0.9rem; }
+
+    @media(max-width: 768px) {
+        .row-2 { grid-template-columns: 1fr; }
+        .contact-card { padding: 1.5rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <section class="section-padding">
-        <h2 class="section-title">CONTACT US</h2>
-        
-        <div class="contact-info">
-            {% for contact in contact_details %}
-                <div class="contact-row">
-                    <i data-lucide="{{ contact.type.lucideicon|default:'circle' }}"></i>
-                    {% if contact.url %}
-                        <a href="{{ contact.url }}" target="_blank">{{ contact.description }}</a>
-                    {% else %}
-                        <span>{{ contact.description }}</span>
-                    {% endif %}
-                </div>
-            {% endfor %}
+
+<div class="success-overlay {% if success %}active{% endif %}" id="successOverlay">
+    <div class="success-content">
+        <div class="success-icon">
+            <i data-lucide="check" width="40" height="40"></i>
         </div>
-        
-        <form class="contact-form" method="post">
-            {% csrf_token %}
-            <input type="text" name="name" placeholder="Your Name" required>
-            <input type="email" name="email" placeholder="Your Email" required>
-            <input type="text" name="company_name" placeholder="Company Name">
-            <input type="tel" name="phone" placeholder="Phone Number">
-            <input type="text" name="subjectMessage" placeholder="Subject" required>
-            <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
-            <button type="submit">Send Message</button>
-        </form>
-    </section>
+        <h2 class="success-text">TRANSMISSION RECEIVED</h2>
+        <p class="redirect-text">Redirecting to command center...</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="contact-wrapper">
+        <div class="contact-card">
+            
+            <div class="form-header">
+                <h2>Contact Us</h2>
+                <!-- <p>// SECURE CHANNEL ESTABLISHED</p> -->
+            </div>
+
+            <div class="info-grid">
+                {% for contact in contact_details %}
+                    <div class="info-item">
+                        <i data-lucide="{{ contact.type.lucideicon|default:'circle' }}" width="18"></i>
+                        {% if contact.url %}
+                            <a href="{{ contact.url }}" target="_blank">{{ contact.description }}</a>
+                        {% else %}
+                            <span>{{ contact.description }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <form method="post" id="contactForm">
+                {% csrf_token %}
+                
+                <div class="row-2">
+                    <div class="input-group">
+                        <input type="text" name="name" placeholder="FULL NAME" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" name="company_name" placeholder="ORGANIZATION / COMPANY">
+                    </div>
+                </div>
+
+                <div class="row-2">
+                    <div class="input-group">
+                        <input type="email" name="email" placeholder="EMAIL ADDRESS" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" name="phone" placeholder="PHONE NO.">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" name="subjectMessage" placeholder="SUBJECT" required>
+                </div>
+
+                <div class="input-group">
+                    <textarea name="message" rows="5" placeholder="ENTER MESSAGE PARAMETERS..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">SEND MESSAGE</button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
+
+    // Check if the success overlay is active (passed from Django view)
+    const overlay = document.getElementById('successOverlay');
+    
+    if (overlay && overlay.classList.contains('active')) {
+        // Wait 2000ms (2 seconds) then redirect
+        setTimeout(() => {
+            window.location.href = "{% url 'homepage' %}"; // Ensure this matches your URL name for homepage
+        }, 2000);
+    }
 </script>
 {% endblock %}
