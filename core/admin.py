@@ -57,3 +57,4 @@ class DemoWebsiteAdmin(admin.ModelAdmin):
     list_filter = ("category", "is_active")
     search_fields = ("title", "category__title")
     ordering = ("category", "title")
+#njfa
