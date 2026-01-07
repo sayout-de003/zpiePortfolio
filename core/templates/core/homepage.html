@@ -2,553 +2,796 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-    /* --- HERO --- */
-    .hero { 
-        height: calc(100vh - var(--nav-height)); 
-        display:flex; flex-direction:column; justify-content:center; 
-        position:relative; z-index: 20; background: transparent; 
-        padding-left: 5vw;
+    /* --- ZPIE THEME VARIABLES (Blue, White, Black) --- */
+    :root {
+        --z-black: #020617;       /* Deepest Slate/Black */
+        --z-panel: #0f172a;       /* Panel Background */
+        --z-blue: #3b82f6;        /* Primary Electric Blue */
+        --z-blue-dim: rgba(59, 130, 246, 0.1);
+        --z-cyan: #06b6d4;        /* Secondary Accent */
+        --z-white: #f8fafc;       /* Pure White Text */
+        --z-gray: #94a3b8;        /* Muted Text */
+        --z-border: rgba(255, 255, 255, 0.1);
+        
+        --font-main: 'Inter', sans-serif;
+        --font-display: 'Orbitron', sans-serif;
+        --font-mono: 'Share Tech Mono', monospace;
+
+        --cursor-size: 20px;
     }
-    .hero-bg-img {
-        position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover;
-        opacity: 0.3; z-index: -1; filter: grayscale(100%) contrast(1.2);
-    }
-    .floating-formula { position:absolute; color:rgba(255,255,255,0.05); font-family:var(--font-mono); font-size:4rem; z-index:-1; user-select:none; }
+
+    /* --- RESET & UTILITIES --- */
+    * { box-sizing: border-box; cursor: none; /* Hide default cursor */ }
     
-    h1 { font-size:8vw; line-height:0.9; font-weight:900; text-transform:uppercase; mix-blend-mode: exclusion; }
-    .outline-text { color:transparent; -webkit-text-stroke:1px var(--c-white); opacity:0.3; }
-    
-    .hero p { 
-        font-family:var(--font-mono); max-width:600px; margin-top:2rem; 
-        color:var(--c-blue); border-left:2px solid var(--c-blue); 
-        padding-left:1rem; font-size: 1.1rem; line-height: 1.5;
+    body { 
+        background-color: var(--z-black); 
+        color: var(--z-white); 
+        font-family: var(--font-main); 
+        overflow-x: hidden; 
+        margin: 0; 
+        line-height: 1.5;
     }
     
-    .btn-future { 
-        margin-top:3rem; padding:1rem 3rem; background:transparent; 
-        border:1px solid var(--c-blue); color:var(--c-blue); 
-        font-family:var(--font-mono); text-transform:uppercase; 
-        letter-spacing:2px; position:relative; overflow:hidden; 
-        transition:0.3s; display: inline-block; width: max-content;
-        text-decoration: none; text-align: center;
-    }
-    .btn-future::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, var(--c-blue), transparent); transition:0.5s; }
-    .btn-future:hover { background:var(--c-blue); color:var(--c-black); box-shadow:0 0 30px var(--c-blue); }
-    .btn-future:hover::before { left:100%; }
-
-    /* --- SCROLL VIDEO --- */
-    .scroll-video-section {
-        height: 400vh; 
-        position: relative; width: 100%; background: black;
-    }
-    .sticky-wrapper {
-        position: sticky; top: 0; width: 100%; height: 100vh;
-        overflow: hidden; display: flex; justify-content: center; align-items: center;
-    }
-    #cinematic-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    a { text-decoration: none; color: inherit; transition: 0.3s ease; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    img, video { max-width: 100%; display: block; }
     
-    .vid-overlay {
-        position: absolute; width: 100%; height: 100%; z-index: 2;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        opacity: 0; transition: opacity 0.5s ease;
-        pointer-events: none; /* Default to none */
+    /* Custom Cursor */
+    .custom-cursor {
+        position: fixed;
+        top: 0; 
+        left: 0;
+        width: var(--cursor-size);
+        height: var(--cursor-size);
+        border: 1px solid var(--z-blue);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate3d(-100px, -100px, 0); /* Start off screen */
+        transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+        mix-blend-mode: difference;
     }
-    /* Enable pointers only when active so buttons work */
-    .vid-overlay.active { opacity: 1; pointer-events: auto; }
+    .custom-cursor-dot {
+        position: fixed;
+        top: 0; 
+        left: 0;
+        width: 4px;
+        height: 4px;
+        background: var(--z-white);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate3d(-100px, -100px, 0);
+    }
+    /* Hover State for Cursor */
+    body.hovering .custom-cursor {
+        width: 50px;
+        height: 50px;
+        background-color: rgba(59, 130, 246, 0.1);
+        border-color: var(--z-white);
+    }
 
-    .scanlines {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-        background-size: 100% 2px, 3px 100%; z-index: 3; pointer-events: none;
-    }
-
-    /* --- BRIEF SECTION --- */
-    .brief-section { 
-        padding: 6rem 2rem; background: rgba(2, 2, 2, 0.7); position: relative; overflow: hidden;
-        border: 1px solid rgba(0,243,255,0.1); backdrop-filter: blur(10px);
-        width: 100%;
-    }
-    .brief-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; text-align: center; }
-    .brief-bg-video { 
-        position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.2; 
-    }
-
-    /* --- COMMON GRID STYLES --- */
-    .section-title { font-size:3rem; margin-bottom:2rem; border-bottom:1px solid var(--c-blue); display:inline-block; color: white; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:2rem; margin-top:3rem; width: 100%; }
+    /* Layout Helpers */
+    .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 10; }
+    .section-py { padding: 8rem 0; }
+    .flex-center { display: flex; justify-content: center; align-items: center; }
     
-    .card { 
-        background: rgba(20, 20, 20, 0.8); border:1px solid rgba(255,255,255,0.1); 
-        padding:2rem; backdrop-filter:blur(10px); transition:0.3s; 
-        position:relative; overflow:hidden; display: flex; flex-direction: column;
-    }
-    .card:hover { border-color: var(--c-blue); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .card h3 { font-family:var(--font-mono); margin-bottom:1rem; color:var(--c-white); font-size: 1.5rem;}
-    .card p { font-size:0.9rem; line-height:1.4; color: #ccc; flex-grow: 1; }
+    /* Grid System */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; }
     
-    .card-icon { color: var(--c-blue); margin-bottom: 1rem; }
-    .card-graph { height:50px; width:100%; border-bottom:1px solid rgba(0,243,255,0.3); position:relative; margin-top:2rem; }
-    .card-graph::after { content:''; position:absolute; bottom:0; left:0; height:100%; width:0%; background:linear-gradient(90deg, transparent, var(--c-blue)); opacity:0.3; transition: width 1s ease; }
-    .card:hover .card-graph::after { width:100%; }
-
-    .client-scroller { display: flex; gap: 3rem; overflow-x: auto; padding: 2rem 0; scrollbar-width: none; }
-    .client-logo { height: 60px; filter: grayscale(100%) brightness(200%); opacity: 0.6; transition: 0.3s; }
-    .client-logo:hover { filter: grayscale(0%); opacity: 1; }
-
-    /* --- TESTIMONIALS --- */
-    .testimonial-card { border-left: 3px solid var(--c-blue); }
-    .testimonial-card cite { display: block; margin-top: 1rem; font-family: var(--font-mono); color: var(--c-blue); font-style: normal;}
-
-    /* --- ACCORDION --- */
-    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 0; }
-    .faq-question { font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; font-family: var(--font-mono); color: white; }
-    .faq-question:hover { color: var(--c-blue); }
-    .faq-answer { display: none; padding-top: 1rem; color: #aaa; font-size: 0.95rem; }
-    .faq-item.active .faq-answer { display: block; }
-
-    /* --- CONTACT FORM --- */
-    .contact-grid {
-        display:grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-        gap:1.5rem;
-        max-width:900px;
-        margin:0 auto;
+    /* Typography */
+    .font-display { font-family: var(--font-display); }
+    .font-mono { font-family: var(--font-mono); }
+    .text-center { text-align: center; }
+    .text-gradient {
+        background: linear-gradient(135deg, #fff 0%, var(--z-blue) 100%);
+        -webkit-background-clip: text; color: transparent;
     }
-    .form-group { display:flex; flex-direction:column; }
-    .form-group.full { grid-column: 1 / -1; }
-    .form-group label { font-family:var(--font-mono); font-size:0.8rem; color:var(--c-blue); margin-bottom:0.5rem; }
-    .form-group input, .form-group textarea {
-        background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); color:#fff;
-        padding:0.8rem; font-family:inherit;
+    
+    /* --- HERO SECTION --- */
+    .hero-section {
+        position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        overflow: hidden; padding-top: 80px;
+        background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     }
-    .form-group input:focus, .form-group textarea:focus {
-        outline:none; border-color:var(--c-blue); box-shadow:0 0 10px rgba(0,243,255,0.2);
+    
+    /* Math Grid Background */
+    .math-grid {
+        position: absolute; inset: 0; 
+        background-image: 
+            linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        pointer-events: none;
     }
-    /* Fix container inside vid-overlay */
-.vid-overlay .container {
-    width: 90%;       /* Full width inside overlay */
-    max-width: 1200px;
-    margin: 0 auto;   /* Center horizontally */
-    display: block;   /* Ensure inner grid works */
+
+    /* Rotating ZPIE Circle (Math/Physics theme) */
+    .zpie-orbit {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 600px; height: 600px; border: 1px dashed rgba(59, 130, 246, 0.2);
+        border-radius: 50%; animation: spin 60s linear infinite; pointer-events: none;
+    }
+    .zpie-orbit::before {
+        content: ''; position: absolute; top: -5px; left: 50%; width: 10px; height: 10px;
+        background: var(--z-blue); border-radius: 50%; box-shadow: 0 0 20px var(--z-blue);
+    }
+
+    .hero-content { text-align: center; position: relative; z-index: 20; }
+    
+    .status-badge {
+        display: inline-flex; align-items: center; gap: 0.75rem;
+        padding: 0.5rem 1.25rem; border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);
+        font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px;
+        margin-bottom: 2rem; border-radius: 2px;
+    }
+    .status-dot {
+        width: 6px; height: 6px; background: var(--z-blue); border-radius: 50%;
+        box-shadow: 0 0 10px var(--z-blue);
+        animation: pulse 2s infinite;
+    }
+
+    .hero-title {
+        font-family: var(--font-display); font-weight: 800; font-size: clamp(3.5rem, 10vw, 7rem);
+        line-height: 1; letter-spacing: -0.02em; margin-bottom: 1.5rem;
+        color: var(--z-white);
+    }
+    
+    .hero-desc {
+        color: var(--z-gray); font-size: 1.25rem; max-width: 600px; margin: 0 auto 3rem;
+        font-weight: 300; line-height: 1.7;
+    }
+    
+    .btn-zpie {
+        position: relative;
+        padding: 1rem 3rem; 
+        background: var(--z-white); 
+        color: var(--z-black);
+        font-family: var(--font-mono); 
+        font-weight: 700; 
+        font-size: 1rem;
+        letter-spacing: 1px;
+        border: none;
+        overflow: hidden;
+        transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        display: inline-flex; align-items: center; justify-content: center; gap: 1rem;
+    }
+    .btn-zpie::before {
+        content: ''; position: absolute; inset: 0; background: var(--z-blue);
+        transform: translateX(-100%); transition: transform 0.4s ease; z-index: 0;
+    }
+    .btn-zpie span { position: relative; z-index: 1; }
+    .btn-zpie:hover { color: var(--z-white); }
+    .btn-zpie:hover::before { transform: translateX(0); }
+
+    /* --- ABOUT SECTION --- */
+    .about-section { background: var(--z-black); position: relative; }
+    .section-header { margin-bottom: 5rem; border-left: 2px solid var(--z-blue); padding-left: 2rem; }
+    .section-tag {
+        color: var(--z-blue); font-family: var(--font-mono); font-size: 0.875rem;
+        letter-spacing: 0.2em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;
+    }
+    .section-heading {
+        font-family: var(--font-display); font-size: 3rem; font-weight: 700;
+        margin: 0; text-transform: uppercase; color: var(--z-white);
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--z-border);
+        padding: 2.5rem;
+        transition: transform 0.3s, border-color 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    .card-glass:hover {
+        transform: translateY(-5px);
+        border-color: var(--z-blue);
+    }
+    .card-glass h3 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1rem; }
+    .card-glass p { color: var(--z-gray); font-family: var(--font-main); font-weight: 300; }
+
+    /* --- SERVICES --- */
+    .service-card {
+        height: 350px; border: 1px solid var(--z-border); background: var(--z-panel);
+        position: relative; overflow: hidden; display: flex; flex-direction: column;
+        justify-content: flex-end; padding: 2rem; group;
+    }
+    .service-bg {
+        position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%;
+        opacity: 0.3; transition: opacity 0.5s, transform 0.5s; filter: grayscale(100%);
+    }
+    .service-card:hover .service-bg { opacity: 0.6; transform: scale(1.05); filter: grayscale(0%); }
+    .service-overlay {
+        position: absolute; inset: 0; 
+        background: linear-gradient(to top, var(--z-black) 10%, transparent 100%);
+    }
+    .service-content { position: relative; z-index: 5; }
+    .service-icon { 
+        color: var(--z-blue); margin-bottom: 1rem; width: 2rem; height: 2rem;
+    }
+
+    /* --- DEMO SECTION (User Requested Style) --- */
+    .demo-section {
+        background: linear-gradient(to bottom, var(--z-black), #0b1120);
+        border-top: 1px solid var(--z-border);
+    }
+    .demo-category { margin-bottom: 4rem; }
+    .demo-category-title {
+        font-family: var(--font-mono); color: var(--z-blue); font-size: 1rem;
+        letter-spacing: 2px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;
+    }
+    .demo-category-title::after {
+        content: ''; height: 1px; flex-grow: 1; background: var(--z-border);
+    }
+    .demo-table {
+        border: 1px solid var(--z-border);
+        background: rgba(2, 6, 23, 0.5);
+    }
+    .demo-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1.25rem 2rem; border-bottom: 1px solid var(--z-border);
+        transition: background 0.2s;
+    }
+    .demo-row:last-child { border-bottom: none; }
+    .demo-row:hover { background: rgba(59, 130, 246, 0.05); }
+    
+    .demo-title {
+        font-family: var(--font-display); font-size: 1.125rem; font-weight: 500;
+        color: var(--z-white);
+    }
+    .demo-link a {
+        font-family: var(--font-mono); font-size: 0.875rem;
+        color: var(--z-gray); border: 1px solid var(--z-border);
+        padding: 0.5rem 1.5rem; transition: 0.3s;
+    }
+    .demo-link a:hover {
+        background: var(--z-white); color: var(--z-black); border-color: var(--z-white);
+    }
+
+    /* --- CLIENTS HORIZONTAL SCROLL --- */
+    .client-scroller-section { background: var(--z-black); border-bottom: 1px solid var(--z-border); overflow: hidden; padding: 4rem 0; }
+    .scroller-track {
+        display: flex; width: max-content;
+        animation: scroll-left 40s linear infinite;
+    }
+    .client-item {
+        display: flex; align-items: center; justify-content: center;
+        width: 200px; padding: 0 2rem; opacity: 0.5; transition: opacity 0.3s;
+    }
+    .client-item:hover { opacity: 1; }
+    .client-item img { max-height: 50px; width: auto; filter: grayscale(100%); transition: filter 0.3s; }
+    .client-item:hover img { filter: grayscale(0%); }
+    
+    @keyframes scroll-left { to { transform: translateX(-50%); } }
+
+    /* --- FEATURES --- */
+    .feature-card {
+        padding: 2rem; border-left: 1px solid var(--z-border);
+        transition: border-color 0.3s;
+    }
+    .feature-card:hover { border-left-color: var(--z-blue); background: linear-gradient(90deg, rgba(59,130,246,0.02), transparent); }
+    .feat-num {
+        font-family: var(--font-mono); font-size: 3rem; color: rgba(255,255,255,0.05);
+        font-weight: 700; line-height: 1; margin-bottom: 1rem;
+    }
+    
+    /* --- CONTACT --- */
+    /* .contact-wrapper { display: flex; flex-direction: column; border-top: 1px solid var(--z-border); }
+    .map-box { position: relative; min-height: 500px; background: #111; }
+    .form-box { padding: 4rem; background: var(--z-black); position: relative; }
+    .grid-bg {
+        position: absolute; inset: 0; pointer-events: none;
+        background-image: radial-gradient(var(--z-border) 1px, transparent 1px);
+        background-size: 20px 20px; opacity: 0.5;
+    }
+
+    .input-group { margin-bottom: 2rem; position: relative; }
+    .input-label {
+        position: absolute; left: 0; top: -1.5rem;
+        font-family: var(--font-mono); font-size: 0.75rem; color: var(--z-gray);
+    }
+    .form-input {
+        width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--z-border);
+        padding: 0.5rem 0; color: #fff; font-family: var(--font-main); font-size: 1.125rem;
+        transition: 0.3s; outline: none; border-radius: 0;
+    }
+    .form-input:focus { border-bottom-color: var(--z-blue); } */
+
+    /* --- CONTACT SPLIT LAYOUT --- */
+.contact-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack on mobile */
+    border-top: 1px solid var(--z-border);
+    min-height: 500px; /* Minimum height for the section */
 }
 
-/* Ensure grid stretches correctly */
-.vid-overlay .grid {
+/* LEFT SIDE: MAP */
+.map-box {
+    position: relative;
+    min-height: 400px;
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-}
-/* --- DEMO WEBSITES SECTION --- */
-.demo-section {
-    margin-top: 6rem;
+    background: #020617;
+    border-bottom: 1px solid var(--z-border); /* Border for mobile stack */
 }
 
-.demo-category {
-    margin-bottom: 4rem;
-}
-
-.demo-category-title {
-    font-family: var(--font-mono);
-    font-size: 1.3rem;
-    color: var(--c-blue);
-    margin-bottom: 1.5rem;
-    letter-spacing: 1px;
-}
-
-.demo-table {
+/* RIGHT SIDE: ACTION BOX (The Button Area) */
+.cta-box {
+    position: relative;
+    width: 100%;
+    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(15,15,15,0.6);
-    backdrop-filter: blur(8px);
-}
-
-.demo-row {
-    display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 1.2rem 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    gap: 1rem;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
 }
 
-.demo-row:last-child {
-    border-bottom: none;
+/* Decorative Background Grid for CTA Box */
+.cta-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
-.demo-title {
-    flex: 2;
-    font-family: var(--font-mono);
-    color: white;
-    font-size: 0.95rem;
-}
-
-.demo-link {
-    flex: 1;
-    text-align: right;
-}
-
-.demo-link a {
-    color: var(--c-blue);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    text-decoration: none;
-    border: 1px solid var(--c-blue);
-    padding: 0.4rem 1.2rem;
-    transition: 0.3s;
-}
-
-.demo-link a:hover {
-    background: var(--c-blue);
-    color: var(--c-black);
-    box-shadow: 0 0 15px rgba(0,243,255,0.6);
-}
-
-/* --- MOBILE STACKING --- */
-@media (max-width: 768px) {
-    .demo-row {
-        flex-direction: column;
-        align-items: flex-start;
+/* DESKTOP: Side-by-Side */
+@media (min-width: 1024px) {
+    .contact-wrapper {
+        flex-direction: row; /* Side by side */
+        align-items: stretch; /* Make both sides equal height */
     }
-
-    .demo-link {
-        width: 100%;
-        text-align: left;
+    .map-box {
+        width: 50%;
+        border-bottom: none;
+        border-right: 1px solid var(--z-border);
+    }
+    .cta-box {
+        width: 50%;
     }
 }
+    
+    /* --- ANIMATIONS --- */
+    @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
 
+    /* Responsive */
+    @media (min-width: 1024px) {
+        .contact-wrapper { flex-direction: row; }
+        .map-box, .form-box { width: 50%; }
+    }
+    @media (max-width: 768px) {
+        .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        .hero-title { font-size: 3rem; }
+        .demo-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .demo-link { width: 100%; }
+        .demo-link a { display: block; text-align: center; }
+        /* Disable custom cursor on touch devices */
+        .custom-cursor, .custom-cursor-dot { display: none; }
+        * { cursor: auto; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="container">
-    <section class="hero">
-        {% if hero.image %}
-            <img src="{{ hero.image.url }}" class="hero-bg-img" alt="Hero Background">
-        {% endif %}
-        
-        <div class="floating-formula" style="top:20%; right:10%;">E = mc²</div>
-        <div class="floating-formula" style="bottom:10%; left:5%;">∫ f(x) dx</div>
-        
-        <h1 class="outline-text">Software</h1>
-        <h1>BEYOND</h1>
-        <h1>LIMITS<span style="color:var(--c-blue)">.</span></h1>
-        
-        {% if hero %}
-            <p>{{ hero.description }}</p>
-            {% if hero.button_text %}
-                <a href="{{ hero.button_url }}" target="{{ hero.button_target }}" class="btn-future" 
-                   style="border-radius: {{ hero.button_border_radius }}; border-color: {{ hero.button_border_color|default:'var(--c-blue)' }}; background-color: {{ hero.button_background_color }}; color: {{ hero.button_color }}">
-                    {{ hero.button_text }}
-                </a>
-            {% endif %}
-        {% else %}
-             <p>// INITIALIZING PROTOCOL<br>Merging quantum physics with software architecture.</p>
-            <button class="btn-future">Initialize Sequence</button>
-        {% endif %}
-    </section>
-</div>
+<div class="custom-cursor" id="cursor-ring"></div>
+<div class="custom-cursor-dot" id="cursor-dot"></div>
 
-<!-- <div class="scroll-video-section" id="scroll-target">
-    <div class="sticky-wrapper">
-        <canvas id="cinematic-canvas"></canvas>
-        <div class="scanlines"></div>
-        
-        <div class="vid-overlay" id="overlay-1">
-            <div class="container" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                
-                {% for brief in homepage_briefs %}
-                <div id="brief-item-{{ forloop.counter }}" style="margin-bottom: 2rem;">
-                    <section class="brief-section">
-                        <h2 class="section-title">{{ brief.title }}</h2>
-                        <p>{{ brief.short_description }}</p>
-                    </section>
-                </div>
-                {% endfor %}
-        
-            </div>
-        </div>
-
-        <div class="vid-overlay" id="overlay-2">
-            <div class="container">
-                <section class="section-padding">
-                    <h2 class="section-title">SERVICES</h2>
-                    <div class="grid">
-                        {% for service in services %}
-                        <div class="card">
-                            <div class="card-icon">
-                                <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
-                            </div>
-                            <h3>{{ service.title }}</h3>
-                            <p>{{ service.short_description }}</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </section>
-            </div>
-        </div>
-
-        <div class="vid-overlay" id="overlay-3">
-            <div class="container">
-                <section class="section-padding">
-                    <h2 class="section-title">KEY FEATURES</h2>
-                    <div class="grid">
-                        {% for feature in key_features %}
-                        <div class="card">
-                            <h3>0{{ forloop.counter }} // {{ feature.title|upper }}</h3>
-                            <p>{{ feature.description }}</p>
-                            <div class="card-graph"></div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </section>
-            </div>
-        </div>
+<header class="hero-section">
+    <div class="math-grid"></div>
+    <div class="zpie-orbit"></div>
+    
+    {% if hero.image %}
+    <div style="position: absolute; inset: 0; z-index: 0; opacity: 0.4;">
+        <img src="{{ hero.image.url }}" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) contrast(1.2);">
+        <div style="position: absolute; inset: 0; background: radial-gradient(circle, transparent 0%, var(--z-black) 90%);"></div>
     </div>
-</div> -->
-
-
-
-<div class="scroll-video-section" id="scroll-target">
-    <div class="sticky-wrapper">
-        <canvas id="cinematic-canvas"></canvas>
-        <div class="scanlines"></div>
-
-        <!-- BRIEFS -->
-        <div class="vid-overlay" id="overlay-1">
-            <div class="container section-padding">
-                <h2 class="section-title">BRIEFS</h2>
-                <div class="grid">
-                    {% for brief in homepage_briefs %}
-                    <div class="card">
-                        <h3>{{ brief.title }}</h3>
-                        <p>{{ brief.short_description }}</p>
-                        {% if brief.link_url %}
-                        <a href="{{ brief.link_url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem; text-decoration: none;">
-                            Learn More >
-                        </a>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- SERVICES -->
-        <!-- SERVICES -->
-            <div class="vid-overlay" id="overlay-2">
-                <div class="container section-padding">
-                    <h2 class="section-title">SERVICES</h2>
-
-                    <div class="grid">
-                        {% for service in services %}
-                        <a href="{% url 'service_detail' service.slug %}" class="service-link">
-                            <div class="card">
-                                <div class="card-icon">
-                                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}"
-                                    width="40" height="40"></i>
-                                </div>
-                                <h3>{{ service.title }}</h3>
-                                <p>{{ service.short_description }}</p>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-
-                </div>
-            </div>
-
-
-        <!-- KEY FEATURES -->
-        <div class="vid-overlay" id="overlay-3">
-            <div class="container section-padding">
-                <h2 class="section-title">KEY FEATURES</h2>
-                <div class="grid">
-                    {% for feature in key_features %}
-                    <div class="card">
-                        <div class="card-icon">
-                            <i data-lucide="{{ feature.logo_icon|default:'star' }}" width="40" height="40"></i>
-                        </div>
-                        <h3>{{ feature.title }}</h3>
-                        <p>{{ feature.description }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="container">
-    <section class="section-padding">
-        <h2 class="section-title" style="font-size: 1.5rem;">TRUSTED ENTITIES</h2>
-        <div class="client-scroller">
-            {% for client in clients %}
-                {% if client.image %}
-                    <img src="{{ client.image.url }}" alt="{{ client.name }}" class="client-logo" title="{{ client.name }}">
-                {% else %}
-                    <div style="font-family: var(--font-mono); color: #555;">{{ client.name }}</div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="section-padding">
-        <h2 class="section-title">RECENT DEPLOYMENTS</h2>
-        <div class="grid">
-            {% for project in projects|slice:":3" %}
-            <div class="card" style="padding: 0;">
-                {% if project.image %}
-                    <div style="height: 200px; overflow: hidden;">
-                        <img src="{{ project.image.url }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ project.title }}">
-                    </div>
-                {% endif %}
-                <div style="padding: 2rem;">
-                    <h3>{{ project.title }}</h3>
-                    <p>{{ project.shortDesc }}</p>
-                    {% if project.url %}
-                        <a href="{{ project.url }}" style="color: var(--c-blue); margin-top: 1rem; display: block; font-family: var(--font-mono); font-size: 0.8rem; text-decoration: none;">INITIATE VIEW ></a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    {% if demo_categories %}
-            <section class="section-padding demo-section">
-                <h2 class="section-title">DEMO WEBSITES</h2>
-
-                {% for category in demo_categories %}
-                    {% if category.demos.all %}
-                    <div class="demo-category">
-                        <div class="demo-category-title">
-                            {{ category.title|upper }}
-                        </div>
-
-                        <div class="demo-table">
-                            {% for demo in category.demos.all %}
-                                {% if demo.is_active %}
-                                <div class="demo-row">
-                                    <div class="demo-title">
-                                        {{ demo.title }}
-                                    </div>
-
-                                    <div class="demo-link">
-                                        <a href="{{ demo.demo_url }}" target="_blank">
-                                            {{ demo.link_text }}
-                                        </a>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-        </section>
     {% endif %}
 
-
-    <section class="section-padding">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 4rem;">
-            <div>
-                <h2 class="section-title">Blogs</h2>
-                <div style="display: flex; flex-direction: column; gap: 2rem;">
-                    {% for blog in blogs|slice:":3" %}
-                        <div style="border-bottom: 1px solid #222; padding-bottom: 1rem;">
-                            <h3 style="font-family: var(--font-mono); margin-bottom: 0.5rem; color: white;">{{ blog.title }}</h3>
-                            <p style="color: #666; font-size: 0.9rem;">{{ blog.shortDesc }}</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div>
-                <h2 class="section-title">Testimonial</h2>
-                <div style="display: flex; flex-direction: column; gap: 2rem;">
-                    {% for t in testimonials|slice:":2" %}
-                        <div class="card testimonial-card">
-                            <p>"{{ t.description }}"</p>
-                            <cite>- {{ t.title }}</cite>
-                        </div>
-                    {% endfor %}
-                </div>
+    <div class="container hero-content">
+        <div class="flex-center">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                SYSTEM: ONLINE // 0π
             </div>
         </div>
-    </section>
+        
+        <h1 class="hero-title">
+            {% if hero %}
+                {{ hero.title|default:"ZERO PI"|upper }}
+            {% else %}
+                ZPIE<br>
+                <span class="text-gradient">ENGINEERING</span>
+            {% endif %}
+        </h1>
+        
+        <p class="hero-desc">
+            {{ hero.description|default:"Mathematical precision meets creative software engineering. We build the future, one variable at a time." }}
+        </p>
 
-    <section class="section-padding">
-        <h2 class="section-title">FAQs</h2>
-        <div style="max-width: 800px;">
-            {% for faq in faqs %}
-            <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
-                    <span>{{ faq.title }}</span>
-                    <span>+</span>
+        <div class="flex-center" style="gap: 1.5rem; flex-wrap: wrap;">
+            {% if hero.button_text %}
+            <a href="{{ hero.button_url }}" target="{{ hero.button_target }}" class="btn-zpie hover-trigger">
+                <span>{{ hero.button_text|upper }}</span>
+            </a>
+            {% else %}
+            <button class="btn-zpie hover-trigger">
+                <span>INITIALIZE PROTOCOL</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+{% if about_us %}
+<section class="about-section section-py">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">01 // IDENTITY</span>
+            <h2 class="section-heading">WHO WE ARE</h2>
+        </div>
+
+        <div class="grid-3">
+            {% for about in about_us %}
+            <div class="card-glass hover-trigger">
+                <h3 class="text-gradient">{{ about.heading }}</h3>
+                <p>{{ about.subheading }}</p>
+
+                {% if about.image %}
+                <div style="margin-top: 1.5rem; height: 200px; overflow: hidden; border: 1px solid var(--z-border);">
+                    <img src="{{ about.image.url }}" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: 0.5s;" onmouseover="this.style.filter='grayscale(0)'" onmouseout="this.style.filter='grayscale(100%)'">
                 </div>
-                <div class="faq-answer">
-                    {{ faq.shortDesc }}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- <section id="services" class="section-py" style="background: #020617; border-top: 1px solid var(--z-border);">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">02 // CAPABILITIES</span>
+            <h2 class="section-heading">MODULES</h2>
+        </div>
+
+        <div class="grid-3">
+            {% for service in services %}
+            <a href="{% url 'service_detail' service.slug %}" class="service-card hover-trigger">
+                {% if service.banner_video %}
+                <video autoplay looxp muted playsinline class="service-bg">
+                    <source src="{{ service.banner_video.url }}" type="video/mp4">
+                </video>
+                {% elif service.banner_image %}
+                <img src="{{ service.banner_image.url }}" alt="{{ service.title }}" class="service-bg">
+                {% endif %}
+                
+                <div class="service-overlay"></div>
+            
+                <div class="service-content">
+                    <i data-lucide="{{ service.logo_icon|default:'activity' }}" class="service-icon"></i>
+                    <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 0.5rem; color: #fff;">
+                        {{ service.title }}
+                    </h3>
+                    <p style="color: var(--z-gray); font-family: var(--font-mono); font-size: 0.875rem;">
+                        {{ service.short_description|truncatechars:100 }}
+                    </p>
                 </div>
+            </a>
+            {% empty %}
+            <div style="grid-column: span 3; text-align: center; color: var(--z-gray); font-family: var(--font-mono);">No active modules.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section> -->
+
+
+<section id="services" class="section-py" style="background: #0b1120;">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">02 // FUNCTIONS</span>
+            <h2 class="section-heading">COMPUTATION MODULES</h2>
+        </div>
+
+        <div class="grid-3">
+            {% for service in services %}
+            <a href="{% url 'service_detail' service.slug %}" class="service-card hover-trigger">
+                
+                {% if service.bg_video %}
+                    <video autoplay loop muted playsinline class="service-bg-media">
+                        <source src="{{ service.bg_video.url }}" type="video/mp4">
+                    </video>
+                {% elif service.banner_image %}
+                    <img src="{{ service.banner_image.url }}" alt="{{ service.title }}" class="service-bg-media">
+                {% else %}
+                    <div class="service-bg-media" style="background: radial-gradient(circle, #1e293b 1px, transparent 1px); background-size: 20px 20px;"></div>
+                {% endif %}
+                
+                <div class="service-overlay"></div>
+            
+                <div class="service-content">
+                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}" style="color: var(--z-blue); margin-bottom: 1rem;"></i>
+                    <h3 class="font-display" style="font-size: 1.5rem; margin: 0 0 0.5rem; color: #fff;">
+                        {{ service.title }}
+                    </h3>
+                    <p class="font-mono" style="color: var(--z-gray); font-size: 0.875rem;">
+                        {{ service.short_description|default:"Initialize standard protocol..."|truncatechars:80 }}
+                    </p>
+                    <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--z-blue); letter-spacing: 1px;">
+                        [ RUN PROCESS ]
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="grid-column: span 3; text-align: center; color: var(--z-gray);">
+                // No active modules found in database.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if demo_categories %}
+<section class="section-py demo-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">03 // PROTOTYPES</span>
+            <h2 class="section-heading">DEMO <span style="color: var(--z-blue);">ACCESS</span></h2>
+        </div>
+
+        {% for category in demo_categories %}
+            {% if category.demos.all %}
+            <div class="demo-category">
+                <div class="demo-category-title">
+                    <i data-lucide="folder" style="width: 16px;"></i> {{ category.title|upper }}
+                </div>
+
+                <div class="demo-table">
+                    {% for demo in category.demos.all %}
+                        {% if demo.is_active %}
+                        <div class="demo-row hover-trigger">
+                            <div class="demo-title">
+                                {{ demo.title }}
+                            </div>
+
+                            <div class="demo-link">
+                                <a href="{{ demo.demo_url }}" target="_blank">
+                                    {{ demo.link_text|default:"LAUNCH TERMINAL"|upper }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section id="key-features" class="section-py" style="background: var(--z-black);">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; border-bottom: 1px solid var(--z-border); padding-bottom: 2rem;">
+            <h2 class="section-heading">CORE <span style="color: var(--z-blue);">LOGIC</span></h2>
+        </div>
+
+        <div class="grid-2">
+            {% for feature in key_features %}
+            <div class="feature-card hover-trigger">
+                <div class="feat-num">0{{ forloop.counter }}</div>
+                <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--z-white); margin-bottom: 1rem;">
+                    {{ feature.title }}
+                </h3>
+                <p style="color: var(--z-gray); line-height: 1.6;">{{ feature.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="deployments" class="section-py" style="background: #0b1120;">
+    <div class="container">
+        <h2 class="section-heading text-center" style="margin-bottom: 4rem;">RECENT DEPLOYMENTS</h2>
+        
+        <div class="grid-3">
+            {% for project in projects|slice:":3" %}
+            <div class="card-glass hover-trigger" style="padding: 0; border: none; background: var(--z-black);">
+                <div style="height: 250px; overflow: hidden; position: relative;">
+                    {% if project.image %}
+                    <img src="{{ project.image.url }}" style="width: 100%; height: 100%; object-fit: cover; transition: 0.5s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; background: #1e293b;"></div>
+                    {% endif %}
+                </div>
+                <div style="padding: 2rem; border: 1px solid var(--z-border); border-top: none;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 0.5rem;">{{ project.title }}</h3>
+                    <p style="color: var(--z-gray); font-size: 0.875rem; margin-bottom: 1rem;">{{ project.shortDesc }}</p>
+                    {% if project.url %}
+                    <a href="{{ project.url }}" target="_blank" style="color: var(--z-blue); font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 1px;">VISIT LINK &rarr;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<div class="container">
+    <section class="client-scroller-section">
+        <div class="container" style="margin-bottom: 2rem;">
+            <span class="section-tag text-center">INTEGRATED SYSTEMS</span>
+        </div>
+        
+        <div class="scroller-track">
+            {% for client in clients %}
+            <div class="client-item hover-trigger">
+                {% if client.image %}
+                    <img src="{{ client.image.url }}" alt="{{ client.name }}">
+                {% else %}
+                    <span class="font-mono" style="font-size: 1.2rem; font-weight: 700;">{{ client.name|upper }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            {% for client in clients %}
+            <div class="client-item hover-trigger">
+                {% if client.image %}
+                    <img src="{{ client.image.url }}" alt="{{ client.name }}">
+                {% else %}
+                    <span class="font-mono" style="font-size: 1.2rem; font-weight: 700;">{{ client.name|upper }}</span>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
     </section>
 
-    <section style="text-align:center; margin:8rem 0;">
-        <h2 class="section-title">Click To contact</h2>
-        <br>
-        <a href="{% url 'contact' %}" class="btn-future">Establish Connection</a>
-    </section>
-</div>
+<section class="section-py" style="background: var(--z-black);">
+    <div class="container">
+        <div class="grid-2">
+            <div>
+                <h3 class="section-tag" style="margin-bottom: 2rem;">TRANSMISSION LOG</h3>
+                {% for blog in blogs|slice:":3" %}
+                <a href="#" class="hover-trigger" style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: flex-start;">
+                    <div style="width: 80px; height: 80px; background: #1e293b; flex-shrink: 0;">
+                        {% if blog.image %}<img src="{{ blog.image.url }}" style="width:100%; height:100%; object-fit:cover;">{% endif %}
+                    </div>
+                    <div>
+                        <h4 style="font-family: var(--font-display); font-size: 1.125rem; margin: 0 0 0.5rem;">{{ blog.title }}</h4>
+                        <p style="color: #64748b; font-size: 0.875rem;">{{ blog.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
 
-<!-- <section class="brief-section" style="border-top:1px solid rgba(0,243,255,0.15);">
-    <div class="container brief-content">
-        <h2 class="section-title">INITIATE CONTACT</h2>
-        <p style="max-width:700px;margin:1rem auto 3rem;font-size:1.1rem;color:#aaa;">
-            Whether you are building a platform, scaling infrastructure, or exploring 
-            advanced digital systems — start the conversation.
-        </p>
-        {% if request.method == "POST" %}
-        <p style="color:var(--c-blue);font-family:var(--font-mono);">
-            Transmission successful. Our team will respond shortly.
-        </p>
-        {% endif %}
-        
-        <form method="post" class="contact-grid">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="name" required>
+            <div>
+                <h3 class="section-tag" style="margin-bottom: 2rem;">DECRYPTED SIGNALS</h3>
+                {% for t in testimonials|slice:":2" %}
+                <div style="border-left: 2px solid var(--z-border); padding-left: 1.5rem; margin-bottom: 2rem;">
+                    <p style="color: var(--z-gray); font-style: italic; margin-bottom: 1rem;">"{{ t.description }}"</p>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        {% if t.image %}<img src="{{ t.image.url }}" style="width: 40px; height: 40px; border-radius: 50%;">{% endif %}
+                        <div>
+                            <div style="font-weight: 700;">{{ t.title }}</div>
+                            <div style="font-size: 0.75rem; color: var(--z-blue);">VERIFIED CLIENT</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            <div class="form-group">
-                <label>Company / Organization</label>
-                <input type="text" name="company_name">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>Phone</label>
-                <input type="text" name="phone">
-            </div>
-            <div class="form-group full">
-                <label>Subject</label>
-                <input type="text" name="subjectMessage">
-            </div>
-            <div class="form-group full">
-                <label>Project Details</label>
-                <textarea name="message" rows="5" required></textarea>
-            </div>
-            <div class="form-group full" style="text-align:center;">
-                <button type="submit" class="btn-future">Transmit Request</button>
-            </div>
-        </form>
+        </div>
     </div>
-</section> -->
+</section>
+
+<!-- <section id="contact" class="contact-wrapper">
+    <div class="map-box">
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14031.10930712629!2d77.0266!3d28.4595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d186ec4c1d4c9%3A0x8d5d2c8d9b6e2e4e!2sGurugram%2C%20Haryana!5e0!3m2!1sen!2sin!4v1735170000000"
+            width="100%" height="100%"
+            style="border:0; filter: grayscale(100%) invert(100%) contrast(1.2); opacity: 0.6;"
+            allowfullscreen loading="lazy">
+        </iframe>
+        <div style="position: absolute; bottom: 2rem; left: 2rem; background: rgba(0,0,0,0.8); padding: 2rem; border: 1px solid var(--z-border); backdrop-filter: blur(10px);">
+            <h3 style="font-family: var(--font-display); margin-bottom: 1rem;">ZPIE HQ</h3>
+            {% if address %}<p style="color: var(--z-gray); font-size: 0.875rem;">{{ address.address }}</p>{% endif %}
+        </div>
+    </div> -->
+
+    <!-- <div class="form-box">
+        <div class="grid-bg"></div>
+        <div style="position: relative; z-index: 10;">
+            <h2 class="section-heading" style="font-size: 2rem; margin-bottom: 3rem;">ESTABLISH <br><span style="color: var(--z-blue);">CONNECTION</span></h2>
+
+            {% if success %}
+                <div style="text-align: center; padding: 3rem; border: 1px solid var(--z-blue); background: rgba(59,130,246,0.1);">
+                    <h3 style="color: var(--z-blue);">DATA RECEIVED</h3>
+                    <p>Stand by for response.</p>
+                </div>
+            {% else %}
+                <form method="POST" id="contactForm">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label class="input-label">IDENTITY</label>
+                        <input type="text" name="name" required class="form-input hover-trigger">
+                    </div>
+                    
+                    <div class="grid-2" style="gap: 1rem; margin-bottom: 2rem;">
+                         <div class="input-group" style="margin:0;">
+                            <label class="input-label">FREQUENCY (EMAIL)</label>
+                            <input type="email" name="email" required class="form-input hover-trigger">
+                        </div>
+                        <div class="input-group" style="margin:0;">
+                            <label class="input-label">UPLINK (PHONE)</label>
+                            <input type="text" name="phone" required class="form-input hover-trigger">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">MESSAGE PARAMETERS</label>
+                        <textarea name="message" rows="4" required class="form-input hover-trigger" style="resize: none;"></textarea>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-zpie hover-trigger" style="width: 100%;">
+                        <span id="btnText">TRANSMIT DATA</span>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div> -->
+    <section id="contact" class="contact-wrapper">
+        <div class="map-box">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14031.10930712629!2d77.0266!3d28.4595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d186ec4c1d4c9%3A0x8d5d2c8d9b6e2e4e!2sGurugram%2C%20Haryana!5e0!3m2!1sen!2sin!4v1735170000000"
+                width="100%" height="100%"
+                style="border:0; filter: grayscale(100%) invert(100%) contrast(1.2); opacity: 0.6;"
+                allowfullscreen loading="lazy">
+            </iframe>
+            
+            <div style="position: absolute; bottom: 2rem; left: 2rem; background: rgba(2, 6, 23, 0.9); padding: 1.5rem; border: 1px solid var(--z-border); backdrop-filter: blur(5px);">
+                <h3 class="font-display" style="margin-bottom: 0.5rem; color: var(--z-white);">ZPIE HQ</h3>
+                {% if address %}
+                    <p class="font-mono" style="color: var(--z-gray); font-size: 0.8rem; margin: 0;">{{ address.address }}</p>
+                {% endif %}
+            </div>
+        </div>
+    
+        <div class="cta-box">
+            <div style="position: absolute; width: 300px; height: 300px; background: var(--z-blue); border-radius: 50%; opacity: 0.05; filter: blur(60px); pointer-events: none;"></div>
+    
+            <div style="position: relative; z-index: 5;">
+                <span class="section-tag" style="margin-bottom: 1rem;">// COMMUNICATE</span>
+                
+                <h2 class="section-heading" style="font-size: 2.5rem; margin-bottom: 1.5rem;">
+                    READY TO <br><span style="color: var(--z-blue);">COLLABORATE?</span>
+                </h2>
+                
+                <p style="color: var(--z-gray); max-width: 400px; margin: 0 auto 3rem; font-size: 1.1rem;">
+                    Initiate the protocol. Let's build the future together.
+                </p>
+    
+                <a href="{% url 'contact' %}" class="btn-zpie hover-trigger">
+                    <span>ESTABLISH CONNECTION</span>
+                </a>
+            </div>
+        </div>
+    </section>
+<!-- </section> -->
 
 {% endblock %}
 
@@ -557,140 +800,66 @@
 <script>
     lucide.createIcons();
 
-    const vidCanvas = document.getElementById('cinematic-canvas');
-    if (vidCanvas) {
-        const vidCtx = vidCanvas.getContext('2d');
-        const scrollSection = document.getElementById('scroll-target');
+    /* --- HIGH PERFORMANCE CURSOR SCRIPT (No Lag) --- */
+    const cursor = document.getElementById('cursor-ring');
+    const dot = document.getElementById('cursor-dot');
+    const hoverTriggers = document.querySelectorAll('.hover-trigger, a, button, input, textarea');
 
-        let vidW, vidH;
-        let currentScrollProgress = 0;
-        let targetScrollProgress = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    let cursorX = 0;
+    let cursorY = 0;
+    let dotX = 0;
+    let dotY = 0;
 
-        function resizeVidCanvas() {
-            vidW = vidCanvas.width = window.innerWidth;
-            vidH = vidCanvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeVidCanvas);
-        resizeVidCanvas();
+    // Track mouse position
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
 
-        function updateScrollProgress() {
-            const rect = scrollSection.getBoundingClientRect();
-            const sectionHeight = scrollSection.offsetHeight;
-            const windowHeight = window.innerHeight;
-            
-            // rawProgress goes from 0 to 1 as we scroll through 400vh
-            let rawProgress = -rect.top / (sectionHeight - windowHeight);
-            targetScrollProgress = Math.max(0, Math.min(1, rawProgress));
-        }
-        window.addEventListener('scroll', updateScrollProgress);
+    // Animate using requestAnimationFrame for 60fps+ smoothness
+    function animate() {
+        // Linear interpolation for smooth trailing effect
+        // The 0.15 factor determines the "delay" weight. Higher = faster catchup.
+        const speed = 0.15;
+        
+        cursorX += (mouseX - cursorX) * speed;
+        cursorY += (mouseY - cursorY) * speed;
+        
+        dotX += (mouseX - dotX) * 0.5; // Dot moves faster
+        dotY += (mouseY - dotY) * 0.5;
 
-        function lerp(start, end, t) { return start * (1 - t) + end * t; }
+        // Use translate3d for GPU acceleration
+        cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`; // -10 is half width
+        dot.style.transform = `translate3d(${dotX - 2}px, ${dotY - 2}px, 0)`;
 
-        function renderFrame(p) {
-            vidCtx.fillStyle = '#000000';
-            vidCtx.fillRect(0, 0, vidW, vidH);
-
-            const centerX = vidW / 2;
-            const centerY = vidH / 2;
-            const time = Date.now() * 0.001;
-            const pulse = Math.sin(time) * 0.05 + 1;
-
-            vidCtx.save();
-            vidCtx.translate(centerX, centerY);
-            
-            // Scene 1: Portal
-            let rotation = p * Math.PI * 4;
-            vidCtx.rotate(rotation);
-            vidCtx.strokeStyle = `rgba(0, 243, 255, ${Math.max(0, 0.5 - p)})`; 
-            vidCtx.lineWidth = 1;
-            let expansion = 1 + p * 10; 
-            if (p < 0.6) {
-                for(let i=0; i<20; i++) {
-                    vidCtx.beginPath();
-                    let radius = (i * 20 * expansion) % (Math.max(vidW, vidH));
-                    vidCtx.arc(0, 0, radius, 0, Math.PI * 2);
-                    vidCtx.stroke();
-                }
-            }
-
-            // Scene 2: Neural Sphere
-            let particleCount = 100;
-            let sphereSize = 200 * pulse;
-            let sphereAlpha = 0;
-            if(p > 0.1 && p < 0.9) sphereAlpha = Math.sin((p - 0.1) / 0.8 * Math.PI);
-
-            vidCtx.fillStyle = `rgba(0, 243, 255, ${sphereAlpha})`;
-            for (let i = 0; i < particleCount; i++) {
-                let angle = (i / particleCount) * Math.PI * 2;
-                let chaos = Math.sin(p * Math.PI * 5 + i) * 50; 
-                let r = sphereSize + chaos * (1-p); 
-                let x = Math.cos(angle + time) * r;
-                let y = Math.sin(angle + time) * r;
-                
-                vidCtx.beginPath();
-                vidCtx.arc(x, y, 2 + p*2, 0, Math.PI*2);
-                vidCtx.fill();
-                
-                if (i > 0) {
-                    vidCtx.strokeStyle = `rgba(0, 243, 255, ${sphereAlpha * 0.3})`;
-                    vidCtx.beginPath();
-                    let prevAngle = ((i-1) / particleCount) * Math.PI * 2;
-                    let prevX = Math.cos(prevAngle + time) * r;
-                    let prevY = Math.sin(prevAngle + time) * r;
-                    vidCtx.moveTo(x, y);
-                    vidCtx.lineTo(prevX, prevY);
-                    vidCtx.stroke();
-                }
-            }
-            vidCtx.restore();
-
-            // Scene 3: Waveform
-            if (p > 0.5) {
-                vidCtx.save();
-                let waveAlpha = (p - 0.5) * 2; 
-                vidCtx.strokeStyle = `rgba(0, 243, 255, ${waveAlpha})`;
-                vidCtx.lineWidth = 3;
-                
-                vidCtx.beginPath();
-                for(let x = 0; x < vidW; x+=10) {
-                    let frequency = 0.01 + (p * 0.05); 
-                    let amplitude = 100 * Math.sin(p * Math.PI); 
-                    let y = centerY + Math.sin(x * frequency + time * 5 + (p * 20)) * amplitude;
-                    if(x===0) vidCtx.moveTo(x, y); else vidCtx.lineTo(x, y);
-                }
-                vidCtx.stroke();
-                vidCtx.restore();
-            }
-
-            // Overlay Visibility Logic (Adjusted for 400vh)
-            const o1 = document.getElementById('overlay-1');
-            const o2 = document.getElementById('overlay-2');
-            const o3 = document.getElementById('overlay-3');
-            
-            if(o1) o1.classList.toggle('active', p > 0.05 && p < 0.30);
-            if(o2) o2.classList.toggle('active', p > 0.35 && p < 0.60);
-            if(o3) o3.classList.toggle('active', p > 0.65 && p < 0.95);
-        }
-
-        function animationLoop() {
-            currentScrollProgress = lerp(currentScrollProgress, targetScrollProgress, 0.1);
-            renderFrame(currentScrollProgress);
-            requestAnimationFrame(animationLoop);
-        }
-        animationLoop();
+        requestAnimationFrame(animate);
     }
+    animate();
 
-    // const totalBriefs = {{ homepage_briefs|length }};
+    // Hover Effects
+    hoverTriggers.forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
 
-    //     homepage_briefs.forEach((_, index) => {
-    //         const start = index / totalBriefs;
-    //         const end = (index + 1) / totalBriefs;
-
-    //         overlay.classList.toggle(
-    //             'active',
-    //             scrollProgress > start && scrollProgress < end
-    //         );
-    //     });
-
+    /* --- FORM SUBMIT ANIMATION --- */
+    const form = document.getElementById('contactForm');
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            btnText.innerHTML = 'ENCRYPTING...';
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'wait';
+            
+            setTimeout(() => {
+                form.submit();
+            }, 1500);
+        });
+    }
 </script>
 {% endblock %}

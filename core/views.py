@@ -132,7 +132,7 @@ from django.shortcuts import render
 from .models import (
     HomepageHero, Service, KeyFeature, Client, Project, Publication, 
     Blog, Event, Testimonial, FAQ, Logo, Header_title, 
-    ContactDetails, CompanyPages, Address, text_for_brief, HomepageBrief , DemoCategory,DemoWebsite
+    ContactDetails, CompanyPages, Address, text_for_brief, HomepageBrief , DemoCategory,DemoWebsite , AboutUs
 )
 
 # Optional: You can use this helper function if you want to reuse code, 
@@ -150,6 +150,7 @@ def get_base_context():
         'address': Address.objects.first(),
         # This one is correct (Service has is_active)
         'services': Service.objects.filter(is_active=True),
+
     }
 
 def basepage(request):
@@ -249,11 +250,14 @@ def homepage(request):
         'blogs': Blog.objects.all().order_by('-id'),
         'testimonials': Testimonial.objects.all(),
         'faqs': FAQ.objects.filter(is_active=True),
+        'about_us' : AboutUs.objects.all(),
 
          # ✅ DEMO WEBSITES SECTION
         "demo_categories": DemoCategory.objects.prefetch_related(
             "demos"
         ).filter(is_active=True),
+
+
     }
 
     context = {**base_context, **home_context}

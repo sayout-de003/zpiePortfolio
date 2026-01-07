@@ -101,7 +101,11 @@ class HomepageBrief(models.Model):
         null=True,
         blank=True
     )
-
+    banner_image = models.ImageField(
+        upload_to="homepage/brief_banner/",
+        null=True,
+        blank=True
+    )
 
     is_active = models.BooleanField(default=True)
 
@@ -179,6 +183,13 @@ class Service(models.Model):
         upload_to="services/banner/",
         null=True,
         blank=True
+    )
+    # Video specifically for the Card Hover / Background effect
+    bg_video = models.FileField(
+        upload_to="services/bg_video/", 
+        null=True, 
+        blank=True,
+        help_text="Looping video for the service card background."
     )
 
     is_active = models.BooleanField(default=True)
@@ -386,3 +397,17 @@ class DemoWebsite(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.category.title})"
+
+
+
+class AboutUs(models.Model):
+    heading = models.CharField(max_length=255)
+    subheading = models.TextField(blank=True)
+    image = models.ImageField(upload_to="about/", blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.heading

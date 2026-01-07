@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Logo, Header_title, HomepageHero, text_for_brief, HomepageBrief,
     Service, KeyFeature, Client, Project, Publication, Blog,
-    Event, Testimonial, FAQ, ContactDetails, ContactType, CompanyPages
+    Event, Testimonial, FAQ, ContactDetails, ContactType, CompanyPages , AboutUs , Address
 )
 
 admin.site.register(Logo)
@@ -25,6 +25,8 @@ admin.site.register(FAQ)
 admin.site.register(ContactType)
 admin.site.register(ContactDetails)
 admin.site.register(CompanyPages)
+admin.site.register(AboutUs)
+admin.site.register(Address)
 # admin.py
 from .models import ContactFormHomePage
 

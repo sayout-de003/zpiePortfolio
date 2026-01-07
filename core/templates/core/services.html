@@ -1,29 +1,144 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
 {% load static %}
 
 {% block extra_css %}
 <style>
-    /* Additional styles if needed */
+/* ===========================
+   SERVICES PAGE STYLES
+   =========================== */
+
+.services-hero {
+    text-align: center;
+    padding: 4rem 1rem 2.5rem;
+}
+
+.services-hero h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.services-hero p {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    opacity: 0.85;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.75rem;
+    padding-bottom: 4rem;
+}
+
+.service-card {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 2rem 1.75rem;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255,255,255,0.18);
+}
+
+.service-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    margin-bottom: 1.25rem;
+}
+
+.service-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.service-card p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    line-height: 1.6;
+}
+
+.service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.service-link:hover {
+    opacity: 1;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    opacity: 0.7;
+}
 </style>
 {% endblock %}
 
 {% block content %}
+
 <div class="container">
-    <section class="section-padding">
-        <h2 class="section-title">SERVICES</h2>
-        <div class="grid">
-            {% for service in services %}
-            <div class="card">
-                <div class="card-icon">
-                    <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="40" height="40"></i>
-                </div>
-                <h3>{{ service.title }}</h3>
-                <p>{{ service.short_description }}</p>
-            </div>
-            {% endfor %}
-        </div>
+
+    <!-- HERO -->
+    <section class="services-hero">
+        <h1>Our Services</h1>
+        <p>
+            We design, build, and scale digital products using modern
+            technologies, data-driven strategy, and clean engineering.
+        </p>
     </section>
+
+    <!-- SERVICES GRID -->
+    {% if services %}
+    <section class="services-grid">
+        {% for service in services %}
+        <div class="service-card">
+
+            <div class="service-icon">
+                <i data-lucide="{{ service.logo_icon|default:'cpu' }}" width="28" height="28"></i>
+            </div>
+
+            <h3>{{ service.title }}</h3>
+
+            <p>
+                {{ service.short_description|default:service.description|truncatechars:120 }}
+            </p>
+
+            <a href="{% url 'service_detail' service.slug %}" class="service-link">
+                Learn more
+                <i data-lucide="arrow-right" width="16" height="16"></i>
+            </a>
+
+        </div>
+        {% endfor %}
+    </section>
+    {% else %}
+        <div class="empty-state">
+            <p>No services are available at the moment.</p>
+        </div>
+    {% endif %}
+
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
