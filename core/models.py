@@ -215,7 +215,7 @@ class Service(models.Model):
 class KeyFeature(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = models.ImageField(upload_to='key_feature/')
+    image = models.ImageField(upload_to='key_feature/' , null = True , blank = True)
     def __str__(self):
         return self.title
 
@@ -276,7 +276,7 @@ class Testimonial(models.Model):
     title = models.CharField(max_length=200)
     shortDesc = models.CharField(max_length=300, null = True , blank = True)
     description = models.TextField()
-    image = models.ImageField(upload_to='testimonial/')
+    image = models.ImageField(upload_to='testimonial/', blank=True, null=True)
     url = models.URLField(blank=True, null = True)
     def __str__(self):
         return self.title
@@ -339,3 +339,50 @@ class Address(models.Model):
     google_map_url = models.URLField(blank=True, null = True)
     def __str__(self):
         return self.address
+
+
+from django.db import models
+
+
+class DemoCategory(models.Model):
+    title = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text="Example: Restaurant, Pet Shop, E-commerce"
+    )
+    description = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title
+
+
+class DemoWebsite(models.Model):
+    category = models.ForeignKey(
+        DemoCategory,
+        on_delete=models.CASCADE,
+        related_name="demos"
+    )
+    title = models.CharField(
+        max_length=200,
+        help_text="Example: Modern Restaurant Website"
+    )
+    demo_url = models.URLField()
+    link_text = models.CharField(
+        max_length=100,
+        default="View Demo"
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return f"{self.title} ({self.category.title})"

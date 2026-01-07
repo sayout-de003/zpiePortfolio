@@ -140,6 +140,83 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
 }
+/* --- DEMO WEBSITES SECTION --- */
+.demo-section {
+    margin-top: 6rem;
+}
+
+.demo-category {
+    margin-bottom: 4rem;
+}
+
+.demo-category-title {
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    color: var(--c-blue);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.demo-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(15,15,15,0.6);
+    backdrop-filter: blur(8px);
+}
+
+.demo-row {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 1rem;
+}
+
+.demo-row:last-child {
+    border-bottom: none;
+}
+
+.demo-title {
+    flex: 2;
+    font-family: var(--font-mono);
+    color: white;
+    font-size: 0.95rem;
+}
+
+.demo-link {
+    flex: 1;
+    text-align: right;
+}
+
+.demo-link a {
+    color: var(--c-blue);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-decoration: none;
+    border: 1px solid var(--c-blue);
+    padding: 0.4rem 1.2rem;
+    transition: 0.3s;
+}
+
+.demo-link a:hover {
+    background: var(--c-blue);
+    color: var(--c-black);
+    box-shadow: 0 0 15px rgba(0,243,255,0.6);
+}
+
+/* --- MOBILE STACKING --- */
+@media (max-width: 768px) {
+    .demo-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .demo-link {
+        width: 100%;
+        text-align: left;
+    }
+}
 
 </style>
 {% endblock %}
@@ -340,6 +417,41 @@
             {% endfor %}
         </div>
     </section>
+
+    {% if demo_categories %}
+            <section class="section-padding demo-section">
+                <h2 class="section-title">DEMO WEBSITES</h2>
+
+                {% for category in demo_categories %}
+                    {% if category.demos.all %}
+                    <div class="demo-category">
+                        <div class="demo-category-title">
+                            {{ category.title|upper }}
+                        </div>
+
+                        <div class="demo-table">
+                            {% for demo in category.demos.all %}
+                                {% if demo.is_active %}
+                                <div class="demo-row">
+                                    <div class="demo-title">
+                                        {{ demo.title }}
+                                    </div>
+
+                                    <div class="demo-link">
+                                        <a href="{{ demo.demo_url }}" target="_blank">
+                                            {{ demo.link_text }}
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+        </section>
+    {% endif %}
+
 
     <section class="section-padding">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 4rem;">
