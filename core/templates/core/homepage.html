@@ -443,8 +443,8 @@
 <section class="about-section section-py">
     <div class="container">
         <div class="section-header">
-            <span class="section-tag">01 // IDENTITY</span>
-            <h2 class="section-heading">WHO WE ARE</h2>
+            <!-- <span class="section-tag">01 // IDENTITY</span> -->
+            <h2 class="section-heading">Brief of Us</h2>
         </div>
 
         <div class="grid-3">
@@ -506,8 +506,8 @@
 <section id="services" class="section-py" style="background: #0b1120;">
     <div class="container">
         <div class="section-header">
-            <span class="section-tag">02 // FUNCTIONS</span>
-            <h2 class="section-heading">COMPUTATION MODULES</h2>
+            <!-- <span class="section-tag">02 // FUNCTIONS</span> -->
+            <h2 class="section-heading">Services</h2>
         </div>
 
         <div class="grid-3">
@@ -552,8 +552,8 @@
 <section class="section-py demo-section">
     <div class="container">
         <div class="section-header">
-            <span class="section-tag">03 // PROTOTYPES</span>
-            <h2 class="section-heading">DEMO <span style="color: var(--z-blue);">ACCESS</span></h2>
+            <!-- <span class="section-tag">03 // PROTOTYPES</span> -->
+            <h2 class="section-heading">DEMO <span style="color: var(--z-blue);">Websites</span></h2>
         </div>
 
         {% for category in demo_categories %}
@@ -590,7 +590,7 @@
 <section id="key-features" class="section-py" style="background: var(--z-black);">
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; border-bottom: 1px solid var(--z-border); padding-bottom: 2rem;">
-            <h2 class="section-heading">CORE <span style="color: var(--z-blue);">LOGIC</span></h2>
+            <h2 class="section-heading">KEY <span style="color: var(--z-blue);">FEATURES</span></h2>
         </div>
 
         <div class="grid-2">
@@ -636,7 +636,7 @@
 <div class="container">
     <section class="client-scroller-section">
         <div class="container" style="margin-bottom: 2rem;">
-            <span class="section-tag text-center">INTEGRATED SYSTEMS</span>
+            <span class="section-tag text-center">PARTNERS</span>
         </div>
         
         <div class="scroller-track">
@@ -666,7 +666,7 @@
     <div class="container">
         <div class="grid-2">
             <div>
-                <h3 class="section-tag" style="margin-bottom: 2rem;">TRANSMISSION LOG</h3>
+                <h3 class="section-tag" style="margin-bottom: 2rem;">BLOGS</h3>
                 {% for blog in blogs|slice:":3" %}
                 <a href="#" class="hover-trigger" style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: flex-start;">
                     <div style="width: 80px; height: 80px; background: #1e293b; flex-shrink: 0;">
@@ -681,7 +681,7 @@
             </div>
 
             <div>
-                <h3 class="section-tag" style="margin-bottom: 2rem;">DECRYPTED SIGNALS</h3>
+                <h3 class="section-tag" style="margin-bottom: 2rem;">TESTIMONIALS</h3>
                 {% for t in testimonials|slice:":2" %}
                 <div style="border-left: 2px solid var(--z-border); padding-left: 1.5rem; margin-bottom: 2rem;">
                     <p style="color: var(--z-gray); font-style: italic; margin-bottom: 1rem;">"{{ t.description }}"</p>
@@ -699,61 +699,7 @@
     </div>
 </section>
 
-<!-- <section id="contact" class="contact-wrapper">
-    <div class="map-box">
-        <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14031.10930712629!2d77.0266!3d28.4595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d186ec4c1d4c9%3A0x8d5d2c8d9b6e2e4e!2sGurugram%2C%20Haryana!5e0!3m2!1sen!2sin!4v1735170000000"
-            width="100%" height="100%"
-            style="border:0; filter: grayscale(100%) invert(100%) contrast(1.2); opacity: 0.6;"
-            allowfullscreen loading="lazy">
-        </iframe>
-        <div style="position: absolute; bottom: 2rem; left: 2rem; background: rgba(0,0,0,0.8); padding: 2rem; border: 1px solid var(--z-border); backdrop-filter: blur(10px);">
-            <h3 style="font-family: var(--font-display); margin-bottom: 1rem;">ZPIE HQ</h3>
-            {% if address %}<p style="color: var(--z-gray); font-size: 0.875rem;">{{ address.address }}</p>{% endif %}
-        </div>
-    </div> -->
 
-    <!-- <div class="form-box">
-        <div class="grid-bg"></div>
-        <div style="position: relative; z-index: 10;">
-            <h2 class="section-heading" style="font-size: 2rem; margin-bottom: 3rem;">ESTABLISH <br><span style="color: var(--z-blue);">CONNECTION</span></h2>
-
-            {% if success %}
-                <div style="text-align: center; padding: 3rem; border: 1px solid var(--z-blue); background: rgba(59,130,246,0.1);">
-                    <h3 style="color: var(--z-blue);">DATA RECEIVED</h3>
-                    <p>Stand by for response.</p>
-                </div>
-            {% else %}
-                <form method="POST" id="contactForm">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <label class="input-label">IDENTITY</label>
-                        <input type="text" name="name" required class="form-input hover-trigger">
-                    </div>
-                    
-                    <div class="grid-2" style="gap: 1rem; margin-bottom: 2rem;">
-                         <div class="input-group" style="margin:0;">
-                            <label class="input-label">FREQUENCY (EMAIL)</label>
-                            <input type="email" name="email" required class="form-input hover-trigger">
-                        </div>
-                        <div class="input-group" style="margin:0;">
-                            <label class="input-label">UPLINK (PHONE)</label>
-                            <input type="text" name="phone" required class="form-input hover-trigger">
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="input-label">MESSAGE PARAMETERS</label>
-                        <textarea name="message" rows="4" required class="form-input hover-trigger" style="resize: none;"></textarea>
-                    </div>
-
-                    <button type="submit" id="submitBtn" class="btn-zpie hover-trigger" style="width: 100%;">
-                        <span id="btnText">TRANSMIT DATA</span>
-                    </button>
-                </form>
-            {% endif %}
-        </div>
-    </div> -->
     <section id="contact" class="contact-wrapper">
         <div class="map-box">
             <iframe 
@@ -775,18 +721,18 @@
             <div style="position: absolute; width: 300px; height: 300px; background: var(--z-blue); border-radius: 50%; opacity: 0.05; filter: blur(60px); pointer-events: none;"></div>
     
             <div style="position: relative; z-index: 5;">
-                <span class="section-tag" style="margin-bottom: 1rem;">// COMMUNICATE</span>
+                <!-- <span class="section-tag" style="margin-bottom: 1rem;">// COMMUNICATE</span> -->
                 
                 <h2 class="section-heading" style="font-size: 2.5rem; margin-bottom: 1.5rem;">
                     READY TO <br><span style="color: var(--z-blue);">COLLABORATE?</span>
                 </h2>
                 
                 <p style="color: var(--z-gray); max-width: 400px; margin: 0 auto 3rem; font-size: 1.1rem;">
-                    Initiate the protocol. Let's build the future together.
+                    CLICK ON THE CONNECT 
                 </p>
     
                 <a href="{% url 'contact' %}" class="btn-zpie hover-trigger">
-                    <span>ESTABLISH CONNECTION</span>
+                    <span>CONNECT</span>
                 </a>
             </div>
         </div>
