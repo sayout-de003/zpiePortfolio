@@ -32,3 +32,28 @@ from .models import ContactFormHomePage
 class ContactFormAdmin(admin.ModelAdmin):
     list_display = ("name", "email", "company_name", "subjectMessage")
     search_fields = ("name", "email", "company_name")
+
+
+from .models import DemoCategory, DemoWebsite
+
+class DemoWebsiteInline(admin.TabularInline):
+    model = DemoWebsite
+    extra = 1
+    fields = ("title", "demo_url", "link_text", "is_active")
+    show_change_link = True
+
+
+@admin.register(DemoCategory)
+class DemoCategoryAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("title",)
+    inlines = [DemoWebsiteInline]
+
+
+@admin.register(DemoWebsite)
+class DemoWebsiteAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "demo_url", "is_active", "created_at")
+    list_filter = ("category", "is_active")
+    search_fields = ("title", "category__title")
+    ordering = ("category", "title")
