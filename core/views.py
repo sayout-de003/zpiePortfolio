@@ -324,7 +324,7 @@ def contactpage(request):
 
 def aboutpage(request):
     context = get_base_context()
-    return render(request, 'core/about.html', context)
+    return render(request, 'core/aboutUs.html', context)
 
 from django.shortcuts import get_object_or_404
 

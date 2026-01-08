@@ -1,210 +1,339 @@
 <!-- /Users/sayantande/zpie/zpieportfolio/core/templates/core/service_detail.html -->
 
-{% extends "core/base.html" %}
+{{% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}
-{{ service.title }} | {{ block.super }}
+{{ service.title }} | ZPie Modules
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- SCOPED VARIABLES --- */
+    :root {
+        --s-accent: #3b82f6; /* Z-Blue */
+        --s-panel: rgba(15, 23, 42, 0.6); /* Glass Panel */
+        --s-border: rgba(59, 130, 246, 0.2);
+    }
+
+    /* --- LAYOUT OVERRIDES --- */
+    body { background: #020617; } /* Ensure dark backdrop */
+
+    /* --- HERO SECTION --- */
+    .svc-hero {
+        position: relative;
+        height: 70vh;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-top: -80px; /* Counteract nav padding for full immersion */
+        padding-top: 80px;
+    }
+
+    /* Background Media */
+    .svc-hero-media {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        opacity: 0.4;
+        filter: grayscale(100%) contrast(1.1);
+        transition: 0.5s ease;
+    }
+    
+    /* Overlay Gradient */
+    .svc-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, transparent 0%, #020617 90%);
+        z-index: 1;
+    }
+
+    .svc-hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        max-width: 900px;
+        padding: 0 2rem;
+    }
+
+    /* Icon Box */
+    .svc-icon-box {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border: 1px solid var(--s-accent);
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 50%;
+        margin-bottom: 2rem;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+        animation: pulse-glow 3s infinite;
+    }
+    
+    .svc-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        color: #fff;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    .svc-subtitle {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 1.25rem;
+        color: #94a3b8;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* --- MAIN CONTENT GRID --- */
+    .svc-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        position: relative;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: 2fr 1fr; /* 2/3rds content, 1/3rd specs */
+        gap: 3rem;
+    }
+
+    /* Left Column: Description */
+    .svc-desc-panel {
+        background: var(--s-panel);
+        border: 1px solid var(--s-border);
+        padding: 3rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .svc-desc-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #cbd5e1;
+    }
+    
+    .svc-desc-text p { margin-bottom: 1.5rem; }
+
+    /* Right Column: Specs & Advantages */
+    .svc-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .spec-card {
+        background: rgba(2, 6, 23, 0.8);
+        border: 1px solid var(--s-border);
+        padding: 2rem;
+    }
+
+    .spec-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.25rem;
+        color: #fff;
+        border-bottom: 1px solid var(--s-border);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .spec-content {
+        font-family: 'Share Tech Mono', monospace;
+        color: var(--s-accent);
+        font-size: 0.95rem;
+        white-space: pre-line; /* Respect newlines in TextField */
+        line-height: 1.6;
+    }
+
+    .adv-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background: rgba(59, 130, 246, 0.05);
+        border-left: 2px solid var(--s-accent);
+        transition: 0.3s;
+    }
+    .adv-item:hover {
+        background: rgba(59, 130, 246, 0.1);
+        transform: translateX(5px);
+    }
+
+    /* --- CTA SECTION --- */
+    .svc-cta-section {
+        border-top: 1px solid var(--s-border);
+        background: linear-gradient(to top, #020617, #0f172a);
+        padding: 6rem 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .btn-terminal {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 3rem;
+        background: transparent;
+        border: 1px solid var(--s-accent);
+        color: var(--s-accent);
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 2rem;
+    }
+    .btn-terminal:hover {
+        background: var(--s-accent);
+        color: #000;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1024px) {
+        .svc-container { grid-template-columns: 1fr; }
+        .svc-sidebar { order: -1; } /* Specs on top on mobile? Or keep bottom? */
+    }
+    
+    @media (max-width: 768px) {
+        .svc-title { font-size: 2.5rem; }
+        .svc-desc-panel { padding: 1.5rem; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<!-- =========================
- HERO / BANNER SECTION
-========================= -->
-<section class="service-hero">
-
+<section class="svc-hero">
     {% if service.banner_video %}
-        <video class="service-hero-media" autoplay muted loop playsinline>
+        <video class="svc-hero-media" autoplay muted loop playsinline>
             <source src="{{ service.banner_video.url }}" type="video/mp4">
         </video>
     {% elif service.banner_image %}
-        <div class="service-hero-media"
-             style="background-image: url('{{ service.banner_image.url }}');">
-        </div>
+        <img src="{{ service.banner_image.url }}" alt="{{ service.title }}" class="svc-hero-media">
+    {% elif service.bg_video %}
+        <video class="svc-hero-media" autoplay muted loop playsinline>
+            <source src="{{ service.bg_video.url }}" type="video/mp4">
+        </video>
     {% else %}
-        <div class="service-hero-media service-hero-fallback"></div>
+        <div class="svc-hero-media" style="background: 
+            linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;">
+        </div>
     {% endif %}
 
-    <div class="service-hero-overlay"></div>
-
-    <div class="service-hero-content container">
+    <div class="svc-hero-content">
         {% if service.logo_icon %}
-            <div class="service-hero-icon">
-                <i data-lucide="{{ service.logo_icon }}"></i>
-            </div>
+        <div class="svc-icon-box">
+            <i data-lucide="{{ service.logo_icon }}" style="width: 40px; height: 40px; color: #fff;"></i>
+        </div>
         {% endif %}
-
-        <h1>{{ service.title }}</h1>
-
+        
+        <h1 class="svc-title">{{ service.title }}</h1>
+        
         {% if service.short_description %}
-            <p class="service-hero-subtitle">
-                {{ service.short_description }}
-            </p>
+        <p class="svc-subtitle">
+            <span style="color: var(--s-accent);">//</span> {{ service.short_description }}
+        </p>
         {% endif %}
     </div>
 </section>
 
-
-<!-- =========================
- SERVICE CONTENT
-========================= -->
-<section class="service-content">
-    <div class="container">
-
-        <div class="service-description">
+<div class="svc-container">
+    
+    <div class="svc-desc-panel">
+        <h3 style="font-family: 'Orbitron', sans-serif; color: #fff; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+            <i data-lucide="align-left" style="color: var(--s-accent);"></i> MODULE OVERVIEW
+        </h3>
+        <div class="svc-desc-text">
             {{ service.description|linebreaks }}
         </div>
+    </div>
 
-        <!-- CTA -->
-        <div class="service-cta">
-            <h3>Interested in this service?</h3>
-            <p>Let’s discuss how we can help your business grow.</p>
-            <a href="{% url 'contact' %}" class="btn-primary">
-                Contact Us
-            </a>
+    <aside class="svc-sidebar">
+        
+        {% if service.technical_specs %}
+        <div class="spec-card">
+            <div class="spec-header">
+                <i data-lucide="cpu"></i> SYSTEM SPECS
+            </div>
+            <div class="spec-content">
+                {{ service.technical_specs|linebreaksbr }}
+            </div>
         </div>
+        {% endif %}
 
+        {% if service.advantage_1 or service.advantage_2 or service.advantage_3 %}
+        <div class="spec-card">
+            <div class="spec-header">
+                <i data-lucide="zap"></i> OPTIMIZATIONS
+            </div>
+            
+            {% if service.advantage_1 %}
+            <div class="adv-item">
+                <i data-lucide="check-circle" style="color: var(--s-accent); width: 20px; flex-shrink: 0;"></i>
+                <span style="color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.9rem;">{{ service.advantage_1 }}</span>
+            </div>
+            {% endif %}
+
+            {% if service.advantage_2 %}
+            <div class="adv-item">
+                <i data-lucide="check-circle" style="color: var(--s-accent); width: 20px; flex-shrink: 0;"></i>
+                <span style="color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.9rem;">{{ service.advantage_2 }}</span>
+            </div>
+            {% endif %}
+
+            {% if service.advantage_3 %}
+            <div class="adv-item">
+                <i data-lucide="check-circle" style="color: var(--s-accent); width: 20px; flex-shrink: 0;"></i>
+                <span style="color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.9rem;">{{ service.advantage_3 }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </aside>
+
+</div>
+
+<section class="svc-cta-section">
+    <div style="position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 1px; background: var(--s-accent); box-shadow: 0 0 20px var(--s-accent);"></div>
+    
+    <div class="container">
+        <h2 style="font-family: 'Orbitron', sans-serif; color: #fff; font-size: 2rem; margin-bottom: 1rem;">
+            REQUIRE THIS MODULE?
+        </h2>
+        <p style="font-family: 'Share Tech Mono', monospace; color: #94a3b8; max-width: 600px; margin: 0 auto;">
+            Initiate communication protocol to integrate this service into your architecture.
+        </p>
+
+        <a href="{% url 'contact' %}?subject=Inquiry: {{ service.title }}" class="btn-terminal">
+            INITIALIZE REQUEST <i data-lucide="arrow-right"></i>
+        </a>
     </div>
 </section>
 
 {% endblock %}
-
-
-{% block extra_css %}
-<style>
-
-/* =========================
- HERO
-========================= */
-.service-hero {
-    position: relative;
-    height: 60vh;
-    min-height: 420px;
-    overflow: hidden;
-    color: #fff;
-}
-
-.service-hero-media {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background-size: cover;
-    background-position: center;
-}
-
-.service-hero-fallback {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-}
-
-.service-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-}
-
-.service-hero-content {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 900px;
-}
-
-.service-hero-icon {
-    margin-bottom: 16px;
-}
-
-.service-hero-icon i {
-    width: 64px;
-    height: 64px;
-    stroke-width: 1.5;
-}
-
-.service-hero h1 {
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    margin-bottom: 12px;
-}
-
-.service-hero-subtitle {
-    font-size: 1.15rem;
-    max-width: 700px;
-    opacity: 0.9;
-}
-
-/* =========================
- CONTENT
-========================= */
-.service-content {
-    padding: 80px 0;
-    background: #f9fafb;
-}
-
-.service-description {
-    max-width: 800px;
-    margin: 0 auto;
-    font-size: 1.05rem;
-    line-height: 1.8;
-    color: #1f2937;
-}
-
-/* =========================
- CTA
-========================= */
-.service-cta {
-    margin-top: 80px;
-    padding: 48px;
-    text-align: center;
-    background: #111827;
-    color: #fff;
-    border-radius: 16px;
-}
-
-.service-cta h3 {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-}
-
-.service-cta p {
-    margin-bottom: 24px;
-    opacity: 0.85;
-}
-
-.btn-primary {
-    display: inline-block;
-    padding: 14px 32px;
-    background: #2563eb;
-    color: #fff;
-    border-radius: 999px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: #1d4ed8;
-    transform: translateY(-2px);
-}
-
-/* =========================
- RESPONSIVE
-========================= */
-@media (max-width: 768px) {
-    .service-hero {
-        height: 50vh;
-    }
-
-    .service-cta {
-        padding: 32px 20px;
-    }
-}
-
-</style>
-{% endblock %}
-
 
 {% block extra_js %}
 <script>

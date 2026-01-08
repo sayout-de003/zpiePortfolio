@@ -1,0 +1,238 @@
+{% extends "core/base.html" %}
+
+{% block title %}About ZPIE{% endblock %}
+
+{% block content %}
+
+<style>
+/* ------------------ GLOBAL ------------------ */
+:root {
+    --primary: #0d6efd;
+    --dark: #0a0a0a;
+    --light: #ffffff;
+    --muted: #9aa0a6;
+}
+
+body {
+    background: #000;
+    color: var(--light);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+section {
+    padding: 90px 6%;
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+}
+
+p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* ------------------ HERO ------------------ */
+.zpie-hero {
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.zpie-hero video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.25;
+}
+
+.hero-content {
+    position: relative;
+    max-width: 900px;
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    margin-bottom: 20px;
+}
+
+.hero-content span {
+    color: var(--primary);
+}
+
+/* ------------------ SLIDER ------------------ */
+.zpie-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 24px;
+    scroll-snap-type: x mandatory;
+}
+
+.zpie-card {
+    min-width: 320px;
+    background: #111;
+    padding: 28px;
+    border-radius: 14px;
+    scroll-snap-align: start;
+    transition: transform .3s;
+}
+
+.zpie-card:hover {
+    transform: translateY(-6px);
+}
+
+.zpie-card h3 {
+    margin-bottom: 10px;
+}
+
+/* ------------------ GRID ------------------ */
+.zpie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 40px;
+}
+
+/* ------------------ CTA ------------------ */
+.zpie-cta {
+    background: linear-gradient(135deg, #0d6efd, #003c8f);
+    border-radius: 20px;
+    padding: 80px 6%;
+    text-align: center;
+}
+
+.zpie-cta h2 {
+    margin-bottom: 20px;
+}
+
+.zpie-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 34px;
+    background: #fff;
+    color: #000;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+}
+</style>
+
+<!-- HERO -->
+<section class="zpie-hero">
+    <video autoplay muted loop playsinline>
+        <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4">
+    </video>
+
+    <div class="hero-content">
+        <h1>
+            The only constant in business is <span>execution</span>.
+        </h1>
+        <p>
+            Markets evolve. Technology shifts. Customer expectations rise.
+            To survive, businesses must change.  
+            To thrive, they must build systems that adapt — continuously.
+        </p>
+        <p><strong>ZPIE is built for that reality.</strong></p>
+    </div>
+</section>
+
+<!-- WHO WE ARE -->
+<section>
+    <h2>Who We Are</h2>
+    <div class="zpie-grid">
+        <p>
+            ZPIE is a digital execution and technology company helping businesses
+            launch, optimize, and scale with confidence.
+        </p>
+        <p>
+            We operate at the intersection of strategy, engineering, and performance —
+            building digital systems that are fast, scalable, and measurable.
+        </p>
+        <p>
+            We don’t chase trends.  
+            We build foundations that last.
+        </p>
+    </div>
+</section>
+
+<!-- WHAT WE DO -->
+<section>
+    <h2>What We Do</h2>
+    <div class="zpie-slider">
+        <div class="zpie-card">
+            <h3>Digital Platforms</h3>
+            <p>Websites, dashboards, and custom platforms built for growth.</p>
+        </div>
+        <div class="zpie-card">
+            <h3>Automation & Systems</h3>
+            <p>Internal tools, workflows, and integrations that reduce friction.</p>
+        </div>
+        <div class="zpie-card">
+            <h3>SEO & Growth</h3>
+            <p>Search visibility, lead funnels, and performance optimisation.</p>
+        </div>
+        <div class="zpie-card">
+            <h3>AI & Data</h3>
+            <p>Smart systems that improve decision-making and operations.</p>
+        </div>
+    </div>
+</section>
+
+<!-- INSIGHTS -->
+<section>
+    <h2>Insights & Perspective</h2>
+    <div class="zpie-grid">
+        <div>
+            <h3>Execution over theory</h3>
+            <p>Ideas matter only when implemented correctly.</p>
+        </div>
+        <div>
+            <h3>Scalability first</h3>
+            <p>We design systems that grow with your business.</p>
+        </div>
+        <div>
+            <h3>Long-term partnerships</h3>
+            <p>We work with clients who think beyond short-term wins.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CAREERS -->
+<section>
+    <h2>Careers at ZPIE</h2>
+    <p>
+        We’re building a team of engineers, designers, and problem-solvers
+        who want to create meaningful digital impact.
+    </p>
+    <p>
+        If you value ownership, learning, and real-world execution —
+        you’ll fit right in.
+    </p>
+</section>
+
+<!-- CTA -->
+<section class="zpie-cta">
+    <h2>With you for the long run</h2>
+    <p>
+        Whether you’re a founder, business leader, or partner —
+        ZPIE is built to grow with you.
+    </p>
+    <a href="{% url 'contact' %}" class="zpie-btn">Start the conversation</a>
+</section>
+
+<script>
+/* Small UX polish */
+document.querySelectorAll('.zpie-card').forEach(card => {
+    card.addEventListener('mousemove', () => {
+        card.style.boxShadow = '0 20px 40px rgba(0,0,0,.4)';
+    });
+    card.addEventListener('mouseleave', () => {
+        card.style.boxShadow = 'none';
+    });
+});
+</script>
+
+{% endblock %}
