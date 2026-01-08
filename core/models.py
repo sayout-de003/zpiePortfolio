@@ -107,6 +107,7 @@ class HomepageBrief(models.Model):
         blank=True
     )
 
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -148,6 +149,8 @@ from django.utils.text import slugify
 
 
 class Service(models.Model):
+    order = models.PositiveIntegerField(default=0, help_text="Order of display, lower comes first")
+
     title = models.CharField(
         max_length=200,
         unique=True
@@ -196,6 +199,15 @@ class Service(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    description = models.TextField(help_text="Main content for the detail page")
+    technical_specs = models.TextField(blank=True, help_text="Technical details or tech stack")
+
+    advantage_1 = models.CharField(max_length=200, blank=True)
+    advantage_2 = models.CharField(max_length=200, blank=True)
+    advantage_3 = models.CharField(max_length=200, blank=True)
+
+    
 
     class Meta:
         ordering = ["title"]
