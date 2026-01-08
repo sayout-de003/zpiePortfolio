@@ -326,6 +326,10 @@ def aboutpage(request):
     context = get_base_context()
     return render(request, 'core/aboutUs.html', context)
 
+def careerpage(request):
+    context = get_base_context()
+    return render(request, 'core/career.html'  , context)    
+
 from django.shortcuts import get_object_or_404
 
 def service_detail(request, slug):
